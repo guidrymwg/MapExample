@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        android:id="@+id/LinearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        tools:context=".MainActivity" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:id="@+id/geocode_input"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:hint="@string/place_name"
+                android:inputType="text"
+                android:lines="1" />
+
+            <Button
+                android:id="@+id/geocode_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/goLabel" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal"
+            android:padding="3sp" >
+
+            <EditText
+                android:id="@+id/lat_input"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:layout_weight="1.0"
+                android:hint="@string/lat_deg"
+                android:inputType="numberDecimal|numberSigned"
+                android:lines="1" />
+
+            <EditText
+                android:id="@+id/lon_input"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:layout_weight="1.0"
+                android:hint="@string/lon_deg"
+                android:inputType="numberDecimal|numberSigned"
+                android:lines="1" />
+
+            <Button
+                android:id="@+id/latlong_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5sp"
+                android:text="@string/goLabel" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/button_horizontal_margin"
+            android:paddingRight="@dimen/button_horizontal_margin" >
+
+            <Button
+                android:id="@+id/honolulu_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10sp"
+                android:text="@string/markerLabel" />
+
+            <Button
+                android:id="@+id/indoor_map_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10sp"
+                android:text="@string/indoorLabel" />
+
+            <Button
+                android:id="@+id/route_map_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10sp"
+                android:text="@string/routeLabel" />
+
+            <Button
+                android:id="@+id/mapme_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10sp"
+                android:text="@string/mapme_label" />
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>
