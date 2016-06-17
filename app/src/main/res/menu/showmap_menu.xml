@@ -1,33 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res-auto/android" >
+<menu xmlns:android2="http://schemas.android.com/apk/res/android"
+    xmlns:android="http://schemas.android.com/apk/res-auto/android" >
     <item
         android:id="@+id/satellite"
         android:orderInCategory="0"
         android:showAsAction="ifRoom"
-        android:title="@string/satellite_label" />
+        android:title="@string/satellite_label"
+        android2:title="Sat" />
 
     <item
         android:id="@+id/traffic"
         android:orderInCategory="10"
         android:showAsAction="ifRoom"
-        android:title="@string/traffic_label" />
+        android:title="@string/traffic_label"
+        android2:title="@string/traffic_label" />
 
     <item
         android:id="@+id/indoor"
         android:orderInCategory="20"
         android:showAsAction="ifRoom"
-        android:title="@string/indoor_label" />
+        android:title="@string/indoor_label"
+        android2:title="Indoor" />
 
     <item
         android:id="@+id/building"
         android:orderInCategory="30"
         android:showAsAction="ifRoom"
-        android:title="@string/building_label" />
+        android:title="@string/building_label"
+        android2:title="3D" />
 
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_settings"/>
+        android:title="@string/action_settings"
+        android2:title="Settings" />
 
 </menu>
