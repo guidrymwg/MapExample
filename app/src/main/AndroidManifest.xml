@@ -16,6 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <meta-data
+           android:name="com.google.android.gms.version"
+           android:value="@integer/google_play_services_version" />
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -41,6 +45,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".IndoorExample" android:label="Indoor example"> </activity>
+        <activity android:name=".MapMarkers" android:label="Map markers"> </activity>
+        <activity android:name=".ShowMap" android:label="Show Map"> </activity>
+        <activity android:name=".RouteMapper" android:label=""></activity>
+        <activity android:name=".MapMe" android:label="Map Me"></activity>
+        <activity android:name=".Help" android:label="Help" android:theme="@android:style/Theme.Holo.Dialog"> </activity>
+        <activity android:name=".Settings" android:label="Settings" android:theme="@android:style/Theme.Holo.Dialog"> </activity>
+        <activity android:name=".Prefs" android:label="Prefs" android:theme="@android:style/Theme.Holo"></activity>
     </application>
 
 </manifest>

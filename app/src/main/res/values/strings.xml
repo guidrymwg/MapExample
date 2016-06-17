@@ -1,4 +1,44 @@
 <resources>
     <string name="app_name">MapExample</string>
     <string name="title_activity_maps">Map</string>
+    <string name="action_settings">Settings</string>
+    <string name="settings">Settings</string>
+
+    <string name="locLabel">Location:</string>
+    <string name="goLabel">Go</string>
+    <string name="latLabel">Lat</string>
+    <string name="longLabel">Long</string>
+    <string name="trackLabel">Track Present Location</string>
+    <string name="satLabel">Sat</string>
+    <string name="mapLabel">Map</string>
+    <string name="place_name">Place name</string>
+    <string name="lat_deg">Latitude (o)</string>
+    <string name="lon_deg">Longitude (o)</string>
+    <string name="markerLabel">Map with Markers</string>
+    <string name="indoorLabel">Indoor Map Example</string>
+
+    <string name="quit">Exit</string>
+    <string name="help_title">Help</string>
+    <string name="satellite_label">Sat</string>
+    <string name="traffic_label">Traffic</string>
+    <string name="track_label">Track</string>
+
+    <string name="help_text">This is the help file.</string>
+      <string name="settings_text">We omit creating a preferences page here.
+         See the project <i>PrefsFragments</i> for an introduction to constructing
+         a fragments-based preferences page.</string>
+
+    <string name="building_label">3D</string>
+    <string name="indoor_label">Indoor</string>
+
+    <string name="routeLabel">Route Overlay on Map</string>
+    <string name="mapme_label">Map Current Location</string>
+    <string name="connected_toast">Location services connected</string>
+    <string name="disconnected_toast">Location services disconnected</string>
+    <string name="route_toggle_label">Route</string>
+    <string name="eat_toggle_label">Eat</string>
+    <string name="hc_toggle_label">Access</string>
+
+    <string name="nomap_error">Error: target map not found</string>
+
 </resources>
