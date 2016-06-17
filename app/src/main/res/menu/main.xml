@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android2="http://schemas.android.com/apk/res/android"
-    xmlns:android="http://schemas.android.com/apk/res-auto/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/menuItem1"
         android:orderInCategory="0"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/help_title"
-        android2:title="Help" />
+        app:title="Help" />
 
     <item
         android:id="@+id/menuItem2"
         android:orderInCategory="10"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/settings"
-        android2:title="Settings" />
+        app:title="Settings" />
 
     <item
         android:id="@+id/menuItem3"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/quit"
-        android2:title="Exit" />
+        app:title="Exit" />
 
 </menu>

@@ -20,6 +20,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
@@ -55,6 +57,7 @@ public class MapMe extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
+        OnMapReadyCallback,
         GoogleMap.OnMapClickListener,
         OnMapLongClickListener, OnMarkerClickListener,
         GoogleMap.OnInfoWindowClickListener {
@@ -104,9 +107,14 @@ public class MapMe extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mapme);
 
-        // Get a handle to the Map Fragment
+      /*  // Get a handle to the Map Fragment
         map = ((MapFragment) getFragmentManager()
-                .findFragmentById(R.id.mapme_map)).getMapAsync();//getMap();
+                .findFragmentById(R.id.mapme_map)).getMapAsync();//getMap();*/
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapme_map);
+        mapFragment.getMapAsync(this);
 
         if (map != null) {
 
@@ -162,6 +170,25 @@ public class MapMe extends FragmentActivity implements
         // Keep screen on while this map location tracking activity is running
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        // Set the initial zoom level of the map
+        currentZoom = map.getMaxZoomLevel() - zoomOffset;
+
+        // Add a click listener to the map
+        map.setOnMapClickListener(this);
+
+        // Add a long-press listener to the map
+        map.setOnMapLongClickListener(this);
+
+        // Add Marker click listener to the map
+        map.setOnMarkerClickListener(this);
+
+        // Add marker info window click listener
+        map.setOnInfoWindowClickListener(this);
     }
 
     // Following two methods display and handle the top bar options menu for maps
@@ -799,5 +826,6 @@ public class MapMe extends FragmentActivity implements
         Intent streetView = new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uriString));
         startActivity(streetView);
     }
+
 
 }

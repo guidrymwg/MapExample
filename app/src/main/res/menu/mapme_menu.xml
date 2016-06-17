@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android2="http://schemas.android.com/apk/res/android"
-    xmlns:android="http://schemas.android.com/apk/res-auto/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/track_mapme"
         android:orderInCategory="0"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/track_label"
-        android2:title="Track" />
+        app:title="Track" />
 
     <item
         android:id="@+id/satellite_mapme"
         android:orderInCategory="5"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/satellite_label"
-        android2:title="Sat" />
+        app:title="Sat" />
 
     <item
         android:id="@+id/traffic_mapme"
         android:orderInCategory="10"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/traffic_label"
-        android2:title="Traffic" />
+        app:title="Traffic" />
 
     <item
         android:id="@+id/indoor_mapme"
         android:orderInCategory="20"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/indoor_label"
-        android2:title="Indoor" />
+        app:title="Indoor" />
 
     <item
         android:id="@+id/building_mapme"
         android:orderInCategory="30"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:title="@string/building_label"
-        android2:title="3D" />
+        app:title="3D" />
 
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/action_settings"
-        android2:title="Settings" />
+        app:title="Settings" />
 
 </menu>

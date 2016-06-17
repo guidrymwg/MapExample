@@ -7,8 +7,10 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
+//import com.google.android.gms.common.GooglePlayServicesClient;
+//import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -20,12 +22,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -34,41 +39,43 @@ import android.widget.Toast;
 
 
 public class RouteMapper extends FragmentActivity implements
-        GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener,
+        //GooglePlayServicesClient.ConnectionCallbacks,
+        //GooglePlayServicesClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnMarkerClickListener,
         GoogleMap.OnInfoWindowClickListener,
         com.google.android.gms.maps.GoogleMap.OnMapClickListener {
 
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "Mapper";
-    private LocationClient locationClient;
+    private GoogleApiClient locationClient;
     private GoogleMap map;
     private LatLng map_center = new LatLng(35.955, -83.9275);
     private int zoomOffset = 5;
 
     private int numberRoutePoints = -1;
     private int totalWaypoints = -1;
-    private LatLng routePoints [];
-    private int routeGrade [];
-    private Polyline [] route;
+    private LatLng routePoints[];
+    private int routeGrade[];
+    private Polyline[] route;
     private String warnPointSnippet[];
     private LatLng warnPointLatLng[];
 
     private static final int numberAccessMarkers = 4;
     private static final int numberFoodMarkers = 3;
 
-    private LatLng [] accessLoc = new LatLng[numberAccessMarkers];
-    private Marker [] accessMarker = new Marker[numberAccessMarkers];
-    private String [] accessMarkerTitle = new String[numberAccessMarkers];
-    private String [] accessMarkerSnippet = new String[numberAccessMarkers];
-    private Uri [] uriAccess = new Uri[numberAccessMarkers];
+    private LatLng[] accessLoc = new LatLng[numberAccessMarkers];
+    private Marker[] accessMarker = new Marker[numberAccessMarkers];
+    private String[] accessMarkerTitle = new String[numberAccessMarkers];
+    private String[] accessMarkerSnippet = new String[numberAccessMarkers];
+    private Uri[] uriAccess = new Uri[numberAccessMarkers];
 
-    private LatLng [] foodLoc = new LatLng[numberFoodMarkers];
-    private Marker [] foodMarker = new Marker[numberFoodMarkers];
-    private String [] foodMarkerTitle = new String[numberFoodMarkers];
-    private String [] foodMarkerSnippet = new String[numberFoodMarkers];
-    private Uri [] uriFood = new Uri[numberFoodMarkers];
+    private LatLng[] foodLoc = new LatLng[numberFoodMarkers];
+    private Marker[] foodMarker = new Marker[numberFoodMarkers];
+    private String[] foodMarkerTitle = new String[numberFoodMarkers];
+    private String[] foodMarkerSnippet = new String[numberFoodMarkers];
+    private Uri[] uriFood = new Uri[numberFoodMarkers];
 
     private boolean accessInitiallyVisible = false;
     private boolean foodInitiallyVisible = false;
@@ -87,7 +94,7 @@ public class RouteMapper extends FragmentActivity implements
         map = ((MapFragment) getFragmentManager()
                 .findFragmentById(R.id.route_map)).getMap();
 
-        if(map != null){
+        if (map != null) {
 
             // Add a click listener to the map
             map.setOnMapClickListener(this);
@@ -110,7 +117,11 @@ public class RouteMapper extends FragmentActivity implements
 		 * services such as present position and location updates.
 		 */
 
-        locationClient = new LocationClient(this, this, this);
+        locationClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
     }
 
@@ -127,7 +138,7 @@ public class RouteMapper extends FragmentActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if(map == null) {
+        if (map == null) {
             Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
             return false;
         }
@@ -141,7 +152,7 @@ public class RouteMapper extends FragmentActivity implements
             // Toggle satellite overlay
             case R.id.satellite_route:
                 int mt = map.getMapType();
-                if(mt == GoogleMap.MAP_TYPE_NORMAL){
+                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
                     map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                 } else {
                     map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -214,7 +225,7 @@ public class RouteMapper extends FragmentActivity implements
         // Display the connection status
         Toast.makeText(this, getString(R.string.connected_toast),
                 Toast.LENGTH_SHORT).show();
-        if(map != null){
+        if (map != null) {
             initializeMap();
         } else {
             Toast.makeText(this, getString(R.string.nomap_error),
@@ -223,9 +234,14 @@ public class RouteMapper extends FragmentActivity implements
 
     }
 
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
     // Called by Location Services if the connection to the location client drops out
 
-    @Override
+    //@Override
     public void onDisconnected() {
         // Display the connection status
         Toast.makeText(this, getString(R.string.disconnected_toast),
@@ -261,15 +277,25 @@ public class RouteMapper extends FragmentActivity implements
         }
     }
 
-    public void showErrorDialog(int errorCode){
-        Log.e(TAG, "Error_Code ="+errorCode);
+    public void showErrorDialog(int errorCode) {
+        Log.e(TAG, "Error_Code =" + errorCode);
     }
 
     // Method to initialize the map. Check that map!=null before using
 
-    private void initializeMap(){
+    private void initializeMap() {
 
         // Enable or disable current location
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         map.setMyLocationEnabled(false);
 
         // Move camera view and zoom to location
