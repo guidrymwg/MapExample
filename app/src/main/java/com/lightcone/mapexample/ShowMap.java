@@ -1,20 +1,34 @@
 package com.lightcone.mapexample;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 
-public class ShowMap extends FragmentActivity {
+public class ShowMap extends FragmentActivity implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener,
+        OnMapReadyCallback {
 
     private static double lat;
     private static double lon;
@@ -29,17 +43,28 @@ public class ShowMap extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.showmap);
 
-        // Get a handle to the Map Fragment
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.the_map);
+        mapFragment.getMapAsync(this);
+
+/*        // Get a handle to the Map Fragment
         map = ((MapFragment) getFragmentManager()
                 .findFragmentById(R.id.the_map)).getMap();
 
-        if(map != null){
+        if (map != null) {
             initializeMap();
         } else {
             Toast.makeText(this, getString(R.string.nomap_error),
                     Toast.LENGTH_LONG).show();
-        }
+        }*/
 
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        initializeMap();
     }
 
 
@@ -53,7 +78,7 @@ public class ShowMap extends FragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if(map == null) {
+        if (map == null) {
             Toast.makeText(this, getString(R.string.nomap_error),
                     Toast.LENGTH_LONG).show();
             return false;
@@ -68,7 +93,7 @@ public class ShowMap extends FragmentActivity {
             // Toggle satellite overlay
             case R.id.satellite:
                 int mt = map.getMapType();
-                if(mt == GoogleMap.MAP_TYPE_NORMAL){
+                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
                     map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                 } else {
                     map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -78,7 +103,7 @@ public class ShowMap extends FragmentActivity {
             case R.id.building:
                 map.setBuildingsEnabled(!map.isBuildingsEnabled());
                 // Change camera tilt to view from angle if 3D
-                if(map.isBuildingsEnabled()){
+                if (map.isBuildingsEnabled()) {
                     changeCamera(map, map.getCameraPosition().target,
                             map.getCameraPosition().zoom,
                             map.getCameraPosition().bearing, 45, true);
@@ -105,9 +130,23 @@ public class ShowMap extends FragmentActivity {
 
     // Method to initialize the map.  Check for map != null before calling.
 
-    private void initializeMap(){
+    private void initializeMap() {
 
         // Enable or disable current location
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(
+                this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         map.setMyLocationEnabled(trk);
 
         // Move camera view and zoom to location
@@ -176,4 +215,24 @@ public class ShowMap extends FragmentActivity {
         map_center = new LatLng(lat,lon);
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
 }
