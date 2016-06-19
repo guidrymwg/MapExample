@@ -3,6 +3,7 @@ package com.lightcone.mapexample;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,7 +34,7 @@ public class ShowMap extends FragmentActivity implements
         LocationListener,     // Is this needed?
         OnMapReadyCallback {
     final private int REQUEST_LOCATION = 2;
-    private static final String TAG = "ShowMap";
+    private static final String TAG = "Mapper";
     private static double lat;
     private static double lon;
     private static int zm;
@@ -42,6 +43,7 @@ public class ShowMap extends FragmentActivity implements
     private GoogleMap map;
     private GoogleApiClient mGoogleApiClient;
     private Location myLocation;
+    private LocationRequest mLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +51,7 @@ public class ShowMap extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.showmap);
 
-        Log.i(TAG,"Obtain map fragment");
+        Log.i(TAG, "Obtain map fragment");
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -86,7 +88,7 @@ public class ShowMap extends FragmentActivity implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.i(TAG,"map ready");
+        Log.i(TAG, "map ready");
         map = googleMap;
         initializeMap();
     }
@@ -156,9 +158,9 @@ public class ShowMap extends FragmentActivity implements
 
     private void initializeMap() {
 
-        Log.i(TAG,"lat="+map_center.latitude+" lon="+map_center.longitude
-        +" fine permission="+ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION
-        )+" granted="+PackageManager.PERMISSION_GRANTED);
+     /*   Log.i(TAG, "lat=" + map_center.latitude + " lon=" + map_center.longitude
+                + " fine permission=" + ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) + " granted=" + PackageManager.PERMISSION_GRANTED);*/
 
  /*       // Enable or disable current location
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -188,30 +190,34 @@ public class ShowMap extends FragmentActivity implements
             // permission has been granted, continue as usual
             myLocation =
                     LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            //Log.i(TAG, "Location enabled.  lat=" + map_center.latitude + " lon=" + map_center.longitude);
+
+//            map.setMyLocationEnabled(trk);
+//
+            // Move camera view and zoom to location
+            //map_center = new LatLng(21.261941,-157.805901);
+            //map_center = new LatLng(lat, lon);
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
+            //map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lon), 13));
+            //LatLng SYDNEY = new LatLng(-33.88,151.21);
+            //map.moveCamera(CameraUpdateFactory.newLatLngZoom(SYDNEY, 15));
+//
+            // Initialize type of map
+            map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+//
+//            // Initialize 3D buildings enabled for map view
+//            map.setBuildingsEnabled(false);
+//
+//            // Initialize whether indoor maps are shown if available
+//            map.setIndoorEnabled(false);
+//
+//            // Initialize traffic overlay
+//            map.setTrafficEnabled(false);
+//
+//            // Enable rotation gestures
+//            map.getUiSettings().setRotateGesturesEnabled(true);
         }
-
-        Log.i(TAG,"Location enabled.  lat="+map_center.latitude+" lon="+map_center.longitude);
-
-        map.setMyLocationEnabled(trk);
-
-        // Move camera view and zoom to location
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
-
-        // Initialize type of map
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-        // Initialize 3D buildings enabled for map view
-        map.setBuildingsEnabled(false);
-
-        // Initialize whether indoor maps are shown if available
-        map.setIndoorEnabled(false);
-
-        // Initialize traffic overlay
-        map.setTrafficEnabled(false);
-
-        // Enable rotation gestures
-        map.getUiSettings().setRotateGesturesEnabled(true);
-
     }
 
     @Override
@@ -248,7 +254,7 @@ public class ShowMap extends FragmentActivity implements
         // Move (if variable animate is false) or animate (if animate is true) to new
         // camera properties.
 
-        if(animate){
+        if (animate) {
             map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         } else {
             map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
@@ -258,18 +264,32 @@ public class ShowMap extends FragmentActivity implements
     // Set these data using this static method before launching this class with an Intent:
     // for example, ShowMap.putMapData(30,150,18,true);
 
-    public static void putMapData(double latitude, double longitude, int zoom, boolean track){
+    public static void putMapData(double latitude, double longitude, int zoom, boolean track) {
         lat = latitude;
         lon = longitude;
         zm = zoom;
         trk = track;
-        map_center = new LatLng(lat,lon);
+        map_center = new LatLng(lat, lon);
+
+       // Log.i(TAG, "putMapData: lat="+map_center.latitude + " lon="+map_center.longitude);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.i(TAG, "Connected");
 
+        if (trk) {
+            startLocationUpdates();
+        }
     }
+
+    protected void startLocationUpdates() {
+
+        // See https://developer.android.com/training/location/receive-location-updates.html
+
+//        LocationServices.FusedLocationApi.requestLocationUpdates(
+//                mGoogleApiClient, mLocationRequest, this);
+}
 
     @Override
     public void onConnectionSuspended(int i) {
