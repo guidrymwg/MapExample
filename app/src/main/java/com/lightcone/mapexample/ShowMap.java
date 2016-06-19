@@ -154,13 +154,14 @@ public class ShowMap extends FragmentActivity implements
         }
     }
 
-    // Method to initialize the map.  Check for map != null before calling.
+    // Method to initialize the map.  Check for fine-location permission before calling location services
 
     private void initializeMap() {
 
-     /*   Log.i(TAG, "lat=" + map_center.latitude + " lon=" + map_center.longitude
-                + " fine permission=" + ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION
-        ) + " granted=" + PackageManager.PERMISSION_GRANTED);*/
+        Log.i(TAG, "lat=" + map_center.latitude + " lon=" + map_center.longitude
+                + " fine permission="
+                + ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) + " granted=" + PackageManager.PERMISSION_GRANTED);
 
  /*       // Enable or disable current location
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -180,31 +181,33 @@ public class ShowMap extends FragmentActivity implements
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Check Permissions Now
+            // Permission has not been granted by user previously.  Request it now.
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_LOCATION);
         } else {
 
-            Log.i(TAG, "Permission granted");
-            // permission has been granted, continue as usual
-            myLocation =
-                    LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            Log.i(TAG, "Permission has been granted");
 
-            //Log.i(TAG, "Location enabled.  lat=" + map_center.latitude + " lon=" + map_center.longitude);
+            // permission has been granted, continue as usual
+            myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            Log.i(TAG, "Location enabled.  lat=" + map_center.latitude + " lon=" + map_center.longitude);
+
+            setupMap();
 
 //            map.setMyLocationEnabled(trk);
 //
             // Move camera view and zoom to location
             //map_center = new LatLng(21.261941,-157.805901);
             //map_center = new LatLng(lat, lon);
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
+//            map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
             //map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lon), 13));
             //LatLng SYDNEY = new LatLng(-33.88,151.21);
             //map.moveCamera(CameraUpdateFactory.newLatLngZoom(SYDNEY, 15));
 //
             // Initialize type of map
-            map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+//            map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 //
 //            // Initialize 3D buildings enabled for map view
 //            map.setBuildingsEnabled(false);
@@ -220,11 +223,75 @@ public class ShowMap extends FragmentActivity implements
         }
     }
 
+    // Method to set up map.  The moveCamera to location command requires that permission to
+    // access fine location has been given by user (at runtime for Android 6, API 23 and beyond; at install
+    // for earlier versions of Android).
+
+    public void setupMap(){
+
+        //            map.setMyLocationEnabled(trk);
+//
+        // Move camera view and zoom to location
+        //map_center = new LatLng(21.261941,-157.805901);
+        //map_center = new LatLng(lat, lon);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
+        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lon), 13));
+        //LatLng SYDNEY = new LatLng(-33.88,151.21);
+        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(SYDNEY, 15));
+//
+        // Initialize type of map
+        map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+//
+//            // Initialize 3D buildings enabled for map view
+//            map.setBuildingsEnabled(false);
+//
+//            // Initialize whether indoor maps are shown if available
+//            map.setIndoorEnabled(false);
+//
+//            // Initialize traffic overlay
+//            map.setTrafficEnabled(false);
+//
+//            // Enable rotation gestures
+//            map.getUiSettings().setRotateGesturesEnabled(true);
+    }
+
+    /*Following method invoked by the system after the user response to a runtime permission request
+     (Android 6, API 23 and beyond implement such runtime permissions). The system passes to this
+     method the user's response, which you then should act upon in this method.  This method can respond
+     to more than one type permission.  The variable requestCode distinguishes which permission is being
+     processed. */
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
-        Log.i(TAG, "Permission result");
+        Log.i(TAG, "Permission result: requestCode="+requestCode);
+
+        // Since this method may handle more than one type of permission, distinguish which one by a
+        // switch on the requestCode provided by the system.
+
+        switch(requestCode){
+
+            // The permission response was for fine location
+            case REQUEST_LOCATION :
+                Log.i(TAG, "Fine location permission granted: requestCode="+requestCode);
+                // If the request was canceled by user, the results arrays are empty
+                if(grantResults.length > 0
+                 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+                    // Permission was granted. Do the location task that triggered the permission request
+
+                    setupMap();
+
+                } else {
+                    Log.i(TAG, "Fine location permission denied: requestCode="+requestCode);
+
+                    // The permission was denied.  Disable functionality depending on the permission.
+                }
+                return;
+
+        }
     }
+
 
 	/* Method to change properties of camera. If your GoogleMaps instance is called map,
 	 * you can use
