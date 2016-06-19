@@ -192,34 +192,10 @@ public class ShowMap extends FragmentActivity implements
             // permission has been granted, continue as usual
             myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-            Log.i(TAG, "Location enabled.  lat=" + map_center.latitude + " lon=" + map_center.longitude);
+            Log.i(TAG, "Location enabled.  Requested lat=" + map_center.latitude
+                    + " Requested lon=" + map_center.longitude);
 
             setupMap();
-
-//            map.setMyLocationEnabled(trk);
-//
-            // Move camera view and zoom to location
-            //map_center = new LatLng(21.261941,-157.805901);
-            //map_center = new LatLng(lat, lon);
-//            map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
-            //map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lon), 13));
-            //LatLng SYDNEY = new LatLng(-33.88,151.21);
-            //map.moveCamera(CameraUpdateFactory.newLatLngZoom(SYDNEY, 15));
-//
-            // Initialize type of map
-//            map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-//
-//            // Initialize 3D buildings enabled for map view
-//            map.setBuildingsEnabled(false);
-//
-//            // Initialize whether indoor maps are shown if available
-//            map.setIndoorEnabled(false);
-//
-//            // Initialize traffic overlay
-//            map.setTrafficEnabled(false);
-//
-//            // Enable rotation gestures
-//            map.getUiSettings().setRotateGesturesEnabled(true);
         }
     }
 
@@ -286,6 +262,9 @@ public class ShowMap extends FragmentActivity implements
                     Log.i(TAG, "Fine location permission denied: requestCode="+requestCode);
 
                     // The permission was denied.  Disable functionality depending on the permission.
+
+                    Toast.makeText(ShowMap.this, "WARNING: This app will not function without this permission",
+                            Toast.LENGTH_LONG).show();
                 }
                 return;
 
