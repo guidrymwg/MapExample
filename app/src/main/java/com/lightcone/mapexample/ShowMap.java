@@ -13,6 +13,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -20,7 +23,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +50,8 @@ public class ShowMap extends FragmentActivity implements
     private GoogleApiClient mGoogleApiClient;
     private Location myLocation;
     private LocationRequest mLocationRequest;
+    private static final int launcherIcon = R.mipmap.ic_launcher;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -263,8 +271,9 @@ public class ShowMap extends FragmentActivity implements
 
                     // The permission was denied.  Disable functionality depending on the permission.
 
-                    Toast.makeText(ShowMap.this, "WARNING: This app will not function without this permission",
-                            Toast.LENGTH_LONG).show();
+                    showTaskDialog("Warning", "This app will not function without this permission!",
+                            launcherIcon, this, "Refuse Permission", "Do Over");
+
                 }
                 return;
 
@@ -352,4 +361,45 @@ public class ShowMap extends FragmentActivity implements
     public void onLocationChanged(Location location) {
 
     }
+
+    /**
+     * Method showTaskDialog() creates a custom launch dialog popped up by a press on
+     * a button.  This dialog presents a summary of the task to the user and has buttons to either
+     * launch the task or cancel the dialog. Which task to present is controlled by the value of the
+     * int buttonPressed, which is stored if a button is pressed and is used in the switch
+     * statement in launchTask(). This version of AlertDialog.Builder uses the default theme.
+     */
+
+    private void showTaskDialog(String title, String message, int icon, Context context,
+                                String positiveButtonText, String negativeButtonText){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(message).setTitle(title).setIcon(icon);
+        // Add the buttons
+        builder.setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                launchTask();
+            }
+        });
+        builder.setNegativeButton(negativeButtonText, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // Can execute additional code here if desired
+                // Default is cancellation of dialog window.
+                initializeMap();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    // Method to execute if user chooses positive button ("Refuse permission" in this case).
+    // For this example we will just return to the main page.
+
+    private void launchTask(){
+        Toast.makeText(ShowMap.this, "Permission refused. Returning to main page.", Toast.LENGTH_SHORT).show();
+        Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
+    }
+
 }
