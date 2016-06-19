@@ -3,6 +3,7 @@ package com.lightcone.mapexample;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -19,29 +20,36 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import android.Manifest;
 
 
 public class ShowMap extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener,
+        LocationListener,     // Is this needed?
         OnMapReadyCallback {
-
+    final private int REQUEST_LOCATION = 2;
+    private static final String TAG = "ShowMap";
     private static double lat;
     private static double lon;
     private static int zm;
     private static boolean trk;
     private static LatLng map_center;
     private GoogleMap map;
+    private GoogleApiClient mGoogleApiClient;
+    private Location myLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.showmap);
+
+        Log.i(TAG,"Obtain map fragment");
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -59,10 +67,26 @@ public class ShowMap extends FragmentActivity implements
                     Toast.LENGTH_LONG).show();
         }*/
 
+        /* Create new location client. The first 'this' in args is the present
+		 * context; the next two 'this' args indicate that this class will handle
+		 * callbacks associated with connection and connection errors, respectively
+		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
+		 * You cannot use the location client until the onConnected callback
+		 * fires, indicating a valid connection.  At that point you can access location
+		 * services such as present position and location updates.
+		 */
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.i(TAG,"map ready");
         map = googleMap;
         initializeMap();
     }
@@ -132,7 +156,11 @@ public class ShowMap extends FragmentActivity implements
 
     private void initializeMap() {
 
-        // Enable or disable current location
+        Log.i(TAG,"lat="+map_center.latitude+" lon="+map_center.longitude
+        +" fine permission="+ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION
+        )+" granted="+PackageManager.PERMISSION_GRANTED);
+
+ /*       // Enable or disable current location
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(
@@ -146,7 +174,24 @@ public class ShowMap extends FragmentActivity implements
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return;
+        }*/
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Check Permissions Now
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+        } else {
+
+            Log.i(TAG, "Permission granted");
+            // permission has been granted, continue as usual
+            myLocation =
+                    LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         }
+
+        Log.i(TAG,"Location enabled.  lat="+map_center.latitude+" lon="+map_center.longitude);
+
         map.setMyLocationEnabled(trk);
 
         // Move camera view and zoom to location
@@ -167,6 +212,12 @@ public class ShowMap extends FragmentActivity implements
         // Enable rotation gestures
         map.getUiSettings().setRotateGesturesEnabled(true);
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        Log.i(TAG, "Permission result");
     }
 
 	/* Method to change properties of camera. If your GoogleMaps instance is called map,
