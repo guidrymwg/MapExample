@@ -26,7 +26,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,7 +37,7 @@ import android.widget.Toast;
 import android.Manifest;
 
 
-public class ShowMap extends FragmentActivity implements
+public class ShowMap extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,     // Is this needed?
@@ -58,6 +61,9 @@ public class ShowMap extends FragmentActivity implements
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.showmap);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
 
         Log.i(TAG, "Obtain map fragment");
 
