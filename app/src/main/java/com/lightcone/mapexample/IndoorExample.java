@@ -9,6 +9,8 @@ import com.google.android.gms.maps.model.LatLng;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -24,7 +26,7 @@ import android.widget.Toast;
  * Airport.
 */
 
-public class IndoorExample extends FragmentActivity {
+public class IndoorExample extends AppCompatActivity {
 
     private GoogleMap map;
     private LatLng honolulu_airport = new LatLng(21.332, -157.92);
@@ -33,6 +35,16 @@ public class IndoorExample extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.indoorexample);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar2);
+        // Remove default toolbar title and replace with an icon
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        }
+        // Note: getColor(color) deprecated as of API 23
+        toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
 
         // Get a handle to the Map Fragment
         map = ((MapFragment) getFragmentManager()

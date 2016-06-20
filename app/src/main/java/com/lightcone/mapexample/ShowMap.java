@@ -63,6 +63,13 @@ public class ShowMap extends AppCompatActivity implements
         setContentView(R.layout.showmap);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        // Remove default toolbar title and replace with an icon
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        }
+        // Note: getColor(color) deprecated as of API 23
+        toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
         Log.i(TAG, "Obtain map fragment");

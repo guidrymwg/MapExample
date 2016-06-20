@@ -12,8 +12,8 @@
     <string name="satLabel">Sat</string>
     <string name="mapLabel">Map</string>
     <string name="place_name">Place name</string>
-    <string name="lat_deg">Latitude (deg)</string>
-    <string name="lon_deg">Longitude (deg)</string>
+    <string name="lat_deg">Latitude (o)</string>
+    <string name="lon_deg">Longitude (o)</string>
     <string name="markerLabel">Map with Markers</string>
     <string name="indoorLabel">Indoor Map Example</string>
 
