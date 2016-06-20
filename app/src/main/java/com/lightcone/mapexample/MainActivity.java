@@ -37,7 +37,10 @@ public class MainActivity extends AppCompatActivity implements android.view.View
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar2);
         // Remove default toolbar title and replace with an icon
-        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        }
+        // Note: getColor(color) deprecated as of API 23
         toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
@@ -68,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements android.view.View
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to action bar if present.
+        // Inflate the menu; this adds items to tool bar if present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -192,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements android.view.View
             if(Geocoder.isPresent()){
                 results = gcoder.getFromLocationName(placeName,numberOptions);
             } else {
-                Log.i(TAG,"No geocoder accessible on this platform");
+                Log.i(TAG,"No geocoder found");
                 return;
             }
             Iterator<Address> locations = results.iterator();
@@ -224,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements android.view.View
             Log.i(TAG,"lat="+lat+" lon="+lon);
 
         } catch (IOException e){
-            Log.e(TAG, "I/O Failure; is network available?",e);
+            Log.e(TAG, "I/O Failure; are you connected to a network?",e);
         }
     }
 }

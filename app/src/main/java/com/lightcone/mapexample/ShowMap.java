@@ -72,17 +72,6 @@ public class ShowMap extends AppCompatActivity implements
                 .findFragmentById(R.id.the_map);
         mapFragment.getMapAsync(this);
 
-/*        // Get a handle to the Map Fragment
-        map = ((MapFragment) getFragmentManager()
-                .findFragmentById(R.id.the_map)).getMap();
-
-        if (map != null) {
-            initializeMap();
-        } else {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
-        }*/
-
         /* Create new location client. The first 'this' in args is the present
 		 * context; the next two 'this' args indicate that this class will handle
 		 * callbacks associated with connection and connection errors, respectively
@@ -110,7 +99,7 @@ public class ShowMap extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu; this adds items to the tool bar if it is present.
         getMenuInflater().inflate(R.menu.showmap_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -277,8 +266,8 @@ public class ShowMap extends AppCompatActivity implements
 
                     // The permission was denied.  Disable functionality depending on the permission.
 
-                    showTaskDialog("Warning", "This app will not function without this permission!",
-                            launcherIcon, this, "Refuse Permission", "Do Over");
+                    showTaskDialog("Warning!", "This app will not function without this permission!",
+                            launcherIcon, this, "Refuse Permission", "Give Permission");
 
                 }
                 return;

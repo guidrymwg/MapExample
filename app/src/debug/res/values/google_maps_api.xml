@@ -16,7 +16,7 @@
     string in this file.
     -->
 
-    <!--Comment out all but one of following depending on machine-->
+    <!-- Different map API keys for different machines.  Comment out all but one of following, depending on machine -->
 
     <!--Key for M33new-->
     <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCw85E8JvuD9UqDdUTR8xAaCwJ24R5WB68</string>-->
