@@ -36,6 +36,10 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar2);
+        // Remove default toolbar title and replace with an icon
+        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
         geocodeField = (EditText) findViewById(R.id.geocode_input);
