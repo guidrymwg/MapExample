@@ -16,6 +16,14 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         tools:context=".MainActivity" >
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/my_toolbar2"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:elevation="5dp"
+            android:minHeight="?attr/actionBarSize"
+            android:background="?attr/colorPrimary" />
+
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"

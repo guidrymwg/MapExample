@@ -3,6 +3,8 @@ package com.lightcone.mapexample;
 import android.app.Activity;
 import android.os.Bundle;
 import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +19,7 @@ import java.util.List;
 import android.location.Address;
 import android.location.Geocoder;
 
-public class MainActivity extends Activity implements android.view.View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements android.view.View.OnClickListener {
 
     static final String TAG = "Mapper";
     private double lon;
@@ -32,6 +34,9 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar2);
+        setSupportActionBar(toolbar);
 
         geocodeField = (EditText) findViewById(R.id.geocode_input);
 
