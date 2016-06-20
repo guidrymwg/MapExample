@@ -124,7 +124,7 @@ public class IndoorExample extends AppCompatActivity {
     private void initializeMap(){
 
         // Enable or disable current location
-        map.setMyLocationEnabled(false);
+        //map.setMyLocationEnabled(false);
 
         // Move camera view and zoom to location
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(honolulu_airport, 18));
