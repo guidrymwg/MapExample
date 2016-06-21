@@ -134,7 +134,7 @@ public class MapMarkers extends AppCompatActivity implements
     }
 
 
-    //@Override
+    @Override
     public void onInfoWindowClick(final Marker marker) {
 
         String address = null;

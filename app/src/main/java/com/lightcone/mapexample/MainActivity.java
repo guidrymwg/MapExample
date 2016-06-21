@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Set up Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar2);
         // Remove default toolbar title and replace with an icon
         if (toolbar != null) {
@@ -94,10 +95,6 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         this.getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        /* We are going to need fine location permission from the user at runtime for
-        * some of things we are going to do, so let's go ahead and request it.*/
-
-        checkForPermissions();
     }
 
     public void checkForPermissions(){

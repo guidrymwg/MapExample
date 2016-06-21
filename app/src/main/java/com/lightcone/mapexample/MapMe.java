@@ -44,6 +44,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,7 +53,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 
-public class MapMe extends FragmentActivity implements
+public class MapMe extends AppCompatActivity implements
         //GooglePlayServicesClient.ConnectionCallbacks,
         //GooglePlayServicesClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
@@ -72,6 +74,7 @@ public class MapMe extends FragmentActivity implements
     private static final double SPEED_THRESH = 1;
 
     private static final String TAG = "Mapper";
+    final private int REQUEST_LOCATION = 2;
     private GoogleApiClient locationClient;
     private Location currentLocation;
     private double currentLat;
@@ -107,16 +110,22 @@ public class MapMe extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mapme);
 
-      /*  // Get a handle to the Map Fragment
-        map = ((MapFragment) getFragmentManager()
-                .findFragmentById(R.id.mapme_map)).getMapAsync();//getMap();*/
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar4);
+        // Remove default toolbar title and replace with an icon
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        }
+        // Note: getColor(color) deprecated as of API 23
+        toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapme_map);
         mapFragment.getMapAsync(this);
 
-        if (map != null) {
+       /* if (map != null) {
 
             // Set the initial zoom level of the map
             currentZoom = map.getMaxZoomLevel() - zoomOffset;
@@ -136,7 +145,12 @@ public class MapMe extends FragmentActivity implements
         } else {
             Toast.makeText(this, getString(R.string.nomap_error),
                     Toast.LENGTH_LONG).show();
-        }
+        }*/
+
+        /* We are going to need fine location permission from the user at runtime for
+        * some of things we are going to do, so let's go ahead and request it.*/
+
+        checkForPermissions();
 
 		/* Create new location client. The first 'this' in args is the present
 		 * context; the next two 'this' args indicate that this class will handle
@@ -172,9 +186,34 @@ public class MapMe extends FragmentActivity implements
 
     }
 
+    public void checkForPermissions(){
+        Log.i(TAG, " fine permission="
+                + ActivityCompat.checkSelfPermission
+                (this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                + " granted=" + PackageManager.PERMISSION_GRANTED);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission has not been granted by user previously.  Request it now.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+        } else {
+
+            Log.i(TAG, "Permission has been granted");
+
+            // permission has been granted, continue as usual
+            //myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            //setupMap();
+        }
+        return;
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         map = googleMap;
+
         // Set the initial zoom level of the map
         currentZoom = map.getMaxZoomLevel() - zoomOffset;
 
