@@ -1,8 +1,11 @@
 package com.lightcone.mapexample;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -12,15 +15,22 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-public class MapMarkers extends FragmentActivity implements
-        GoogleMap.OnInfoWindowClickListener {
+public class MapMarkers extends AppCompatActivity implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        OnMapReadyCallback,GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap map;
+    private static final String TAG = "Mapper";
     private final LatLng honolulu = new LatLng(21.31,-157.85000);
     private final LatLng waikiki = new LatLng(21.275,-157.825000);
     private final LatLng diamond_head = new LatLng(21.261941,-157.805901);
@@ -31,11 +41,28 @@ public class MapMarkers extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mapmarkers);
 
-        // Get a handle to the Map Fragment
-        map = ((MapFragment) getFragmentManager()
-                .findFragmentById(R.id.markers_map)).getMap();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar3);
+        // Remove default toolbar title and replace with an icon
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        }
+        // Note: getColor(color) deprecated as of API 23
+        toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
+        toolbar.setTitle("Map Example");
+        setSupportActionBar(toolbar);
 
-        if(map !=null){
+        Log.i(TAG, "Obtain map fragment");
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.markers_map);
+        mapFragment.getMapAsync(this);
+
+/*        // Get a handle to the Map Fragment
+        map = ((MapFragment) getFragmentManager()
+                .findFragmentById(R.id.markers_map)).getMap();*/
+
+/*        if(map !=null){
             initializeMap();
 
             addMapMarkers();
@@ -45,7 +72,7 @@ public class MapMarkers extends FragmentActivity implements
         } else {
             Toast.makeText(this, getString(R.string.nomap_error),
                     Toast.LENGTH_LONG).show();
-        }
+        }*/
 
     }
 
@@ -153,35 +180,8 @@ public class MapMarkers extends FragmentActivity implements
 
     }
 
-    // Method to initialize the map
 
-    private void initializeMap(){
-
-        // Enable or disable current location
-        map.setMyLocationEnabled(true);
-
-        // Move camera view and zoom to location
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, 13));
-
-        // Initialize type of map
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-        // Initialize 3D buildings enabled for map view
-        map.setBuildingsEnabled(false);
-
-        // Initialize whether indoor maps are shown if available
-        map.setIndoorEnabled(false);
-
-        // Initialize traffic overlay
-        map.setTrafficEnabled(false);
-
-        // Enable rotation gestures
-        map.getUiSettings().setRotateGesturesEnabled(true);
-
-    }
-
-
-    @Override
+    //@Override
     public void onInfoWindowClick(final Marker marker) {
 
         String address = null;
@@ -202,4 +202,57 @@ public class MapMarkers extends FragmentActivity implements
 
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        Log.i(TAG, "map ready");
+        map = googleMap;
+        initializeMap();
+    }
+
+    // Method to initialize the map
+
+    private void initializeMap(){
+
+        // Enable or disable current location
+        //map.setMyLocationEnabled(true);
+
+        // Move camera view and zoom to location
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, 13));
+
+        // Initialize type of map
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        // Initialize 3D buildings enabled for map view
+        map.setBuildingsEnabled(false);
+
+        // Initialize whether indoor maps are shown if available
+        map.setIndoorEnabled(false);
+
+        // Initialize traffic overlay
+        map.setTrafficEnabled(false);
+
+        // Enable rotation gestures
+        map.getUiSettings().setRotateGesturesEnabled(true);
+
+        addMapMarkers();
+
+        // Add marker info window click listener
+        map.setOnInfoWindowClickListener(this);
+
+    }
 }

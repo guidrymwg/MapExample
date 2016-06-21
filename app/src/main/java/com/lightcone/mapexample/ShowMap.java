@@ -173,22 +173,6 @@ public class ShowMap extends AppCompatActivity implements
                 + ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION
         ) + " granted=" + PackageManager.PERMISSION_GRANTED);
 
- /*       // Enable or disable current location
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(
-                this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }*/
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission has not been granted by user previously.  Request it now.
@@ -216,29 +200,23 @@ public class ShowMap extends AppCompatActivity implements
     public void setupMap(){
 
         //            map.setMyLocationEnabled(trk);
-//
-        // Move camera view and zoom to location
-        //map_center = new LatLng(21.261941,-157.805901);
-        //map_center = new LatLng(lat, lon);
+
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
-        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lon), 13));
-        //LatLng SYDNEY = new LatLng(-33.88,151.21);
-        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(SYDNEY, 15));
 //
         // Initialize type of map
         map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-//
-//            // Initialize 3D buildings enabled for map view
-//            map.setBuildingsEnabled(false);
-//
-//            // Initialize whether indoor maps are shown if available
-//            map.setIndoorEnabled(false);
-//
-//            // Initialize traffic overlay
-//            map.setTrafficEnabled(false);
-//
-//            // Enable rotation gestures
-//            map.getUiSettings().setRotateGesturesEnabled(true);
+
+        // Initialize 3D buildings enabled for map view
+        map.setBuildingsEnabled(false);
+
+        // Initialize whether indoor maps are shown if available
+        map.setIndoorEnabled(false);
+
+        // Initialize traffic overlay
+        map.setTrafficEnabled(false);
+
+        // Enable rotation gestures
+        map.getUiSettings().setRotateGesturesEnabled(true);
     }
 
     /*Following method invoked by the system after the user response to a runtime permission request

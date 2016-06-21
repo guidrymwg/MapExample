@@ -1,10 +1,12 @@
 package com.lightcone.mapexample;
 
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.LightingColorFilter;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.Manifest;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -24,6 +27,7 @@ import android.location.Geocoder;
 public class MainActivity extends AppCompatActivity implements android.view.View.OnClickListener {
 
     static final String TAG = "Mapper";
+    final private int REQUEST_LOCATION = 2;
     private double lon;
     private double lat;
     private EditText placeText;
@@ -63,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         View sixthButton = findViewById(R.id.mapme_button);
         sixthButton.setOnClickListener(this);
 
-        // Color the buttons with our color theme
+        // Color the buttons with our color theme.  Note that
         // getColor(color) is deprecated as of API 23, but we use it for
         // compatibility with earlier versions.  PorterDuff.Mode.MULTIPLY multiplies
         // the current button color value by the specified color.
@@ -83,17 +87,45 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         sixthButton.getBackground().setColorFilter
                 (new LightingColorFilter(0xff000000,getResources().getColor(R.color.buttonColor)));
 
-        // This prevents some devices (fro example, Nexus 7 running Android 4.4.2) from opening
+        // Following prevents some devices (for example, Nexus 7 running Android 4.4.2) from opening
         // the soft keyboard when the app is launched rather than when
         // an input field is selected.
 
         this.getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        /* We are going to need fine location permission from the user at runtime for
+        * some of things we are going to do, so let's go ahead and request it.*/
+
+        checkForPermissions();
+    }
+
+    public void checkForPermissions(){
+        Log.i(TAG, " fine permission="
+                + ActivityCompat.checkSelfPermission
+                (this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                + " granted=" + PackageManager.PERMISSION_GRANTED);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission has not been granted by user previously.  Request it now.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+        } else {
+
+            Log.i(TAG, "Permission has been granted");
+
+            // permission has been granted, continue as usual
+            //myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            //setupMap();
+        }
+        return;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to tool bar if present.
+        // Inflate the menu; this adds items to tool bar.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }

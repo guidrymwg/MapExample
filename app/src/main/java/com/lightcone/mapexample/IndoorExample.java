@@ -43,7 +43,7 @@ public class IndoorExample extends AppCompatActivity {
         }
         // Note: getColor(color) deprecated as of API 23
         toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
-        toolbar.setTitle("");
+        toolbar.setTitle("Indoor Maps");
         setSupportActionBar(toolbar);
 
         // Get a handle to the Map Fragment
