@@ -4,6 +4,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -41,6 +42,7 @@ public class MapMarkers extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mapmarkers);
 
+        // Set up Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar3);
         // Remove default toolbar title and replace with an icon
         if (toolbar != null) {
@@ -51,29 +53,10 @@ public class MapMarkers extends AppCompatActivity implements
         toolbar.setTitle("Map Example");
         setSupportActionBar(toolbar);
 
-        Log.i(TAG, "Obtain map fragment");
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.markers_map);
         mapFragment.getMapAsync(this);
-
-/*        // Get a handle to the Map Fragment
-        map = ((MapFragment) getFragmentManager()
-                .findFragmentById(R.id.markers_map)).getMap();*/
-
-/*        if(map !=null){
-            initializeMap();
-
-            addMapMarkers();
-
-            // Add marker info window click listener
-            map.setOnInfoWindowClickListener(this);
-        } else {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
-        }*/
-
     }
 
 
@@ -150,36 +133,6 @@ public class MapMarkers extends AppCompatActivity implements
         }
     }
 
-    // Method to add map markers. See
-    //     http://developer.android.com/reference/com/google/android/gms/maps/model
-    //      /BitmapDescriptorFactory.html
-    // for additional marker color options.
-
-    private void addMapMarkers(){
-
-        // Add some location markers
-        map.addMarker(new MarkerOptions()
-                .title("Honolulu")
-                .snippet("Capitol of the state of Hawaii")
-                .position(honolulu)
-        ).setDraggable(true);
-
-        map.addMarker(new MarkerOptions()
-                .title("Diamond Head")
-                .snippet("Extinct volcano; iconic landmark")
-                .position(diamond_head)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
-        );
-
-        map.addMarker(new MarkerOptions()
-                .title("Waikiki")
-                .snippet("A world-famous beach")
-                .position(waikiki)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-        );
-
-    }
-
 
     //@Override
     public void onInfoWindowClick(final Marker marker) {
@@ -199,7 +152,6 @@ public class MapMarkers extends AppCompatActivity implements
         final Intent link = new Intent(Intent.ACTION_VIEW);
         link.setData(Uri.parse(address));
         startActivity(link);
-
     }
 
     @Override
@@ -228,9 +180,6 @@ public class MapMarkers extends AppCompatActivity implements
 
     private void initializeMap(){
 
-        // Enable or disable current location
-        //map.setMyLocationEnabled(true);
-
         // Move camera view and zoom to location
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, 13));
 
@@ -253,6 +202,37 @@ public class MapMarkers extends AppCompatActivity implements
 
         // Add marker info window click listener
         map.setOnInfoWindowClickListener(this);
+    }
+
+    // Method to add map markers. See
+    //     http://developer.android.com/reference/com/google/android/gms/maps/model
+    //      /BitmapDescriptorFactory.html
+    // for additional marker color options.
+
+    private void addMapMarkers(){
+
+        MapsInitializer.initialize(this);
+
+        // Add some location markers
+        map.addMarker(new MarkerOptions()
+                .title("Honolulu")
+                .snippet("Capitol of the state of Hawaii")
+                .position(honolulu)
+        ).setDraggable(true);
+
+        map.addMarker(new MarkerOptions()
+                .title("Diamond Head")
+                .snippet("Extinct volcano; iconic landmark")
+                .position(diamond_head)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+        );
+
+        map.addMarker(new MarkerOptions()
+                .title("Waikiki")
+                .snippet("A world-famous beach")
+                .position(waikiki)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+        );
 
     }
 }
