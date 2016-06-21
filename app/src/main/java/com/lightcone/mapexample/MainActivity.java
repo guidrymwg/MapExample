@@ -1,6 +1,7 @@
 package com.lightcone.mapexample;
 
 import android.app.Activity;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -60,6 +61,16 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         fifthButton.setOnClickListener(this);
         View sixthButton = findViewById(R.id.mapme_button);
         sixthButton.setOnClickListener(this);
+
+        // Color the buttons with our color theme
+        // getColor(color) is deprecated as of API 23, but we use it for compatibility with earlier versions
+
+        firstButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
+        secondButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
+        thirdButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
+        fourthButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
+        fifthButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
+        sixthButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
 
         // This prevents my Nexus 7 running Android 4.4.2 from opening
         // the soft keyboard when the app is launched rather than when

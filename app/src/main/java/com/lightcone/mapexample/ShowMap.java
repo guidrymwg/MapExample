@@ -375,7 +375,7 @@ public class ShowMap extends AppCompatActivity implements
     private void showTaskDialog(String title, String message, int icon, Context context,
                                 String positiveButtonText, String negativeButtonText){
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context,R.style.MyDialogTheme);
         builder.setMessage(message).setTitle(title).setIcon(icon);
         // Add the buttons
         builder.setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
