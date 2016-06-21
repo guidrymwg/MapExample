@@ -327,8 +327,6 @@ public class ShowMap extends AppCompatActivity implements
         zm = zoom;
         trk = track;
         map_center = new LatLng(lat, lon);
-
-       // Log.i(TAG, "putMapData: lat="+map_center.latitude + " lon="+map_center.longitude);
     }
 
     @Override
@@ -346,7 +344,7 @@ public class ShowMap extends AppCompatActivity implements
 
 //        LocationServices.FusedLocationApi.requestLocationUpdates(
 //                mGoogleApiClient, mLocationRequest, this);
-}
+    }
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -369,7 +367,7 @@ public class ShowMap extends AppCompatActivity implements
      * a button.  This dialog presents a summary of the task to the user and has buttons to either
      * launch the task or cancel the dialog. Which task to present is controlled by the value of the
      * int buttonPressed, which is stored if a button is pressed and is used in the switch
-     * statement in launchTask(). This version of AlertDialog.Builder uses the default theme.
+     * statement in launchTask(). This version of AlertDialog.Builder allows a theme to be specified.
      */
 
     private void showTaskDialog(String title, String message, int icon, Context context,

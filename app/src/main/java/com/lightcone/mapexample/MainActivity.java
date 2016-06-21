@@ -1,6 +1,7 @@
 package com.lightcone.mapexample;
 
 import android.app.Activity;
+import android.graphics.LightingColorFilter;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.content.Intent;
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         }
         // Note: getColor(color) deprecated as of API 23
         toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
-        toolbar.setTitle("");
+        toolbar.setTitle("Map Example");
         setSupportActionBar(toolbar);
 
         geocodeField = (EditText) findViewById(R.id.geocode_input);
@@ -63,16 +64,26 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         sixthButton.setOnClickListener(this);
 
         // Color the buttons with our color theme
-        // getColor(color) is deprecated as of API 23, but we use it for compatibility with earlier versions
+        // getColor(color) is deprecated as of API 23, but we use it for
+        // compatibility with earlier versions.  PorterDuff.Mode.MULTIPLY multiplies
+        // the current button color value by the specified color.
 
-        firstButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
-        secondButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
-        thirdButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
-        fourthButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
-        fifthButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
-        sixthButton.getBackground().setColorFilter(getResources().getColor(R.color.primary), PorterDuff.Mode.MULTIPLY);
+        firstButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+        secondButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+        thirdButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+        fourthButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+        fifthButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+/*        sixthButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);*/
+        sixthButton.getBackground().setColorFilter
+                (new LightingColorFilter(0xff000000,getResources().getColor(R.color.buttonColor)));
 
-        // This prevents my Nexus 7 running Android 4.4.2 from opening
+        // This prevents some devices (fro example, Nexus 7 running Android 4.4.2) from opening
         // the soft keyboard when the app is launched rather than when
         // an input field is selected.
 
