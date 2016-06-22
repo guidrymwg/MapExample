@@ -954,14 +954,10 @@ public class MapMe extends AppCompatActivity implements
 //                    showTaskDialog("Warning!", "This app will not function without this permission!",
 //                            launcherIcon, this, "Refuse Permission", "Give Permission");
 
-                }
-                return;
+                }return;
 
         }
 
-
-
     }
-
 
 }
