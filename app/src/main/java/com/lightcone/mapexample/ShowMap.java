@@ -17,6 +17,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,7 +36,7 @@ public class ShowMap extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,     // Is this needed?
-        OnMapReadyCallback {
+        OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
     // Update interval in milliseconds for location services
     private static final long UPDATE_INTERVAL = 5000;
@@ -113,6 +114,8 @@ public class ShowMap extends AppCompatActivity implements
         Log.i(TAG, "map ready");
         map = googleMap;
         setupMap();
+        // Add a long-press listener to the map
+        map.setOnMapLongClickListener(this);
         initializeLocation();
     }
 
@@ -469,5 +472,27 @@ public class ShowMap extends AppCompatActivity implements
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latlng) {
+        double lat = latlng.latitude;
+        double lon = latlng.longitude;
+
+        // Launch a StreetView on current location
+        showStreetView(lat,lon);
+    }
+
+    /* Open a Street View, if available.
+	 * The user will have the choice of getting the Street View
+	 * in a browser, or with the StreetView app if it is installed.
+	 * If no Street View exists for a given location, this will present
+	 * a blank page.
+	 */
+
+    private void showStreetView(double lat, double lon ){
+        String uriString = "google.streetview:cbll="+lat+","+lon;
+        Intent streetView = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uriString));
+        startActivity(streetView);
     }
 }

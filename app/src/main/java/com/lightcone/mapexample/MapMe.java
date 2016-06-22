@@ -838,6 +838,8 @@ public class MapMe extends AppCompatActivity implements
 
         String title = reverseGeocodeLocation(latlng.latitude, latlng.longitude);
 
+        Log.i(TAG,"Reverse geocode="+title);
+
         String snippet="Tap marker to delete; tap window for Street View";
 
         // Add an orange marker on map at position of tap (default marker color is red).
