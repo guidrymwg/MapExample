@@ -49,6 +49,7 @@ public class RouteMapper extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnMarkerClickListener, OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener,
+        GoogleMap.OnMapLongClickListener,
         com.google.android.gms.maps.GoogleMap.OnMapClickListener {
 
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -144,8 +145,12 @@ public class RouteMapper extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap) {
 
         map=googleMap;
+
         // Add a click listener to the map
         map.setOnMapClickListener(this);
+
+        // Add a long-press listener to the map
+        map.setOnMapLongClickListener(this);
 
         // Add symbol overlays (initially invisible)
         addAccessSymbols();
@@ -336,55 +341,55 @@ public class RouteMapper extends AppCompatActivity implements
 
     public void overlayRoute() {
 
-        int lw = 8;
+        int lw = 16;
 
-        // Color legend for path slope.  Increasing values of the index
-        // indicate steeper paths
+            // Define the route as a line with multiple segments
+            route = new Polyline[numberRoutePoints];
+            PolylineOptions routeOptions;
 
-        int [] slopeColor = new int[4];
-        slopeColor[0] = Color.parseColor("#cc5ea2c6");
-        slopeColor[1] = Color.parseColor("#ccebc05c");
-        slopeColor[2] = Color.parseColor("#ccbb6255");
-        slopeColor[3] = Color.parseColor("#ccd27451");
+            // Color legend for path slope.  Increasing values of the index
+            // indicate steeper paths
 
-        // Define the route as a line with multiple segments
-        route = new Polyline[numberRoutePoints];
-        PolylineOptions routeOptions;
+            int[] slopeColor = new int[4];
+            slopeColor[0] = Color.parseColor("#cc5ea2c6");
+            slopeColor[1] = Color.parseColor("#ccebc05c");
+            slopeColor[2] = Color.parseColor("#ccbb6255");
+            slopeColor[3] = Color.parseColor("#ccd27451");
 
-        // Add each segment of the route to the map with appropriate color
-        for(int i=0; i< numberRoutePoints-1; i++){
-            routeOptions = new PolylineOptions().width(lw);
-            routeOptions.add(routePoints[i]);
-            routeOptions.add(routePoints[i+1]);
-            routeOptions.color(slopeColor[routeGrade[i]-1]);
-            route[i] = map.addPolyline(routeOptions);
-        }
 
-        // Circle at beginning of route
-        CircleOptions circleOptions = new CircleOptions()
-                .center(routePoints[0])
-                .radius(4)
-                .strokeWidth(0)
-                .strokeColor(slopeColor[0])
-                .fillColor(Color.DKGRAY)
-                .zIndex(100);
-        map.addCircle(circleOptions);
+            // Add each segment of the route to the map with appropriate color
+            for (int i = 0; i < numberRoutePoints - 1; i++) {
+                routeOptions = new PolylineOptions().width(lw);
+                routeOptions.add(routePoints[i]);
+                routeOptions.add(routePoints[i + 1]);
+                routeOptions.color(slopeColor[routeGrade[i] - 1]);
+                route[i] = map.addPolyline(routeOptions);
+            }
 
-        // Circle at end of route
-        circleOptions = circleOptions.center(routePoints[numberRoutePoints-1]);
-        map.addCircle(circleOptions);
+            // Circle at beginning of route
+            CircleOptions circleOptions = new CircleOptions()
+                    .center(routePoints[0])
+                    .radius(6)
+                    .strokeWidth(0)
+                    .strokeColor(slopeColor[0])
+                    .fillColor(Color.DKGRAY)
+                    .zIndex(100);
+            map.addCircle(circleOptions);
 
-        // Add warning areas
+            // Circle at end of route
+            circleOptions = circleOptions.center(routePoints[numberRoutePoints - 1]);
+            map.addCircle(circleOptions);
 
-        for (int i=0; i< totalWaypoints; i++){
-            map.addMarker(new MarkerOptions()
-                    .title("WARNING")
-                    .snippet(warnPointSnippet[i])
-                    .position(warnPointLatLng[i])
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-            );
-        }
+            // Add warning areas
 
+            for (int i = 0; i < totalWaypoints; i++) {
+                map.addMarker(new MarkerOptions()
+                        .title("WARNING")
+                        .snippet(warnPointSnippet[i])
+                        .position(warnPointLatLng[i])
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                );
+            }
     }
 
     // Method to overlay access symbols
@@ -549,6 +554,35 @@ public class RouteMapper extends AppCompatActivity implements
     public void onMapClick(LatLng latlng) {
         Log.i(TAG, "Map tapped: Latitude="+latlng.latitude
                 +" Longitude="+latlng.longitude);
+    }
+
+    // This callback fires for long clicks on the map, passing in the LatLng coordinates.
+    // We will use it to launch a StreetView of the position corresponding to the
+    // long press on the map.
+
+    @Override
+    public void onMapLongClick(LatLng latlng) {
+
+        double lat = latlng.latitude;
+        double lon = latlng.longitude;
+        Log.i(TAG, "Longclick, lat="+lat+" lon="+lon);
+
+        // Launch a StreetView on current location
+        showStreetView(lat,lon);
+
+    }
+
+    /* Open a Street View, if available.
+	 * The user will have the choice of getting the Street View
+	 * in a browser, or with the StreetView app if it is installed.
+	 * If no Street View exists for a given location, this will present
+	 * a blank page.
+	 */
+
+    private void showStreetView(double lat, double lon ){
+        String uriString = "google.streetview:cbll="+lat+","+lon;
+        Intent streetView = new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uriString));
+        startActivity(streetView);
     }
 
     @Override
