@@ -140,7 +140,12 @@ public class RouteMapper extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map=googleMap;
+        // Add a click listener to the map
+        map.setOnMapClickListener(this);
 
+        // Add symbol overlays (initially invisible)
+        addAccessSymbols();
+        addFoodSymbols();
     }
 
 
@@ -434,6 +439,8 @@ public class RouteMapper extends AppCompatActivity implements
 
         // Set up food markers overlay
 
+        Log.i(TAG,"Adding food symbols");
+
         foodLoc[0] = new LatLng(35.952967,-83.929158);
         foodLoc[1] = new LatLng(35.953000,-83.928000);
         foodLoc[2] = new LatLng(35.955000,-83.929158);
@@ -459,7 +466,7 @@ public class RouteMapper extends AppCompatActivity implements
                     .snippet(foodMarkerSnippet[i])
                     .title(foodMarkerTitle[i]));
             foodMarker[i].setVisible(foodInitiallyVisible);
-        }
+        };
     }
 
     // Method to toggle visibility of food symbols
