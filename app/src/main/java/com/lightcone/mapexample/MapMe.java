@@ -129,7 +129,22 @@ public class MapMe extends AppCompatActivity implements
         /* We are going to need fine location permission from the user at runtime for
         * some of things we are going to do, so let's go ahead and request it.*/
 
-        checkForPermissions();
+        //checkForPermissions();
+
+        /* Create new location client. The first 'this' in args is the present
+		 * context; the next two 'this' args indicate that this class will handle
+		 * callbacks associated with connection and connection errors, respectively
+		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
+		 * You cannot use the location client until the onConnected callback
+		 * fires, indicating a valid connection.  At that point you can access location
+		 * services such as present position and location updates.
+		 */
+
+        locationClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
         createLocationClient();
 
@@ -193,20 +208,20 @@ public class MapMe extends AppCompatActivity implements
 
     public void createLocationClient(){
 
-        /* Create new location client. The first 'this' in args is the present
+/*        *//* Create new location client. The first 'this' in args is the present
 		 * context; the next two 'this' args indicate that this class will handle
 		 * callbacks associated with connection and connection errors, respectively
 		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
 		 * You cannot use the location client until the onConnected callback
 		 * fires, indicating a valid connection.  At that point you can access location
 		 * services such as present position and location updates.
-		 */
+		 *//*
 
         locationClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .build();
+                .build();*/
 
         // Create the LocationRequest object
         locationRequest = LocationRequest.create();
@@ -263,6 +278,8 @@ public class MapMe extends AppCompatActivity implements
 
         // Add marker info window click listener
         map.setOnInfoWindowClickListener(this);
+
+        checkForPermissions();
 
     }
 
@@ -908,6 +925,47 @@ public class MapMe extends AppCompatActivity implements
         String uriString = "google.streetview:cbll="+lat+","+lon;
         Intent streetView = new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uriString));
         startActivity(streetView);
+    }
+
+    /*Following method invoked by the system after the user response to a runtime permission request
+     (Android 6, API 23 and beyond implement such runtime permissions). The system passes to this
+     method the user's response, which you then should act upon in this method.  This method can respond
+     to more than one type permission.  The variable requestCode distinguishes which permission is being
+     processed. */
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        Log.i(TAG, "Permission result: requestCode=" + requestCode);
+
+        switch(requestCode){
+
+            // The permission response was for fine location
+            case REQUEST_LOCATION :
+                Log.i(TAG, "Fine location permission granted: requestCode="+requestCode);
+                // If the request was canceled by user, the results arrays are empty
+                if(grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+                    // Permission was granted. Do the location task that triggered the permission request
+
+                    createLocationClient();
+
+                } else {
+                    Log.i(TAG, "Fine location permission denied: requestCode="+requestCode);
+
+                    // The permission was denied.  Disable functionality depending on the permission.
+
+//                    showTaskDialog("Warning!", "This app will not function without this permission!",
+//                            launcherIcon, this, "Refuse Permission", "Give Permission");
+
+                }
+                return;
+
+        }
+
+
+
     }
 
 
