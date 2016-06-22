@@ -47,7 +47,7 @@ public class ShowMap extends AppCompatActivity implements
     private GoogleApiClient mGoogleApiClient;
     private Location myLocation;
     private LocationRequest mLocationRequest;
-    private static final int launcherIcon = R.mipmap.ic_launcher;
+    private static final int dialogIcon = R.mipmap.ic_launcher;
 
 
     @Override
@@ -191,9 +191,9 @@ public class ShowMap extends AppCompatActivity implements
                     // The permission was denied.  Warn the user of the consequences and give
                     // them one last time to enable the permission.
 
-                    showTaskDialog("Warning!",
+                    showTaskDialog(1,"Warning!",
                             "This part of the app will not function without this permission!",
-                            launcherIcon, this, "OK I'll Do It", "Refuse Permission");
+                            dialogIcon, this, "OK I'll Do It", "Refuse Permission");
 
                 }
                 return;
@@ -282,28 +282,37 @@ public class ShowMap extends AppCompatActivity implements
     }
 
     /**
-     * Method showTaskDialog() creates a custom launch dialog popped up by a press on
-     * a button.  This dialog presents a summary of the task to the user and has buttons to either
-     * launch the task or cancel the dialog. Which task to present is controlled by the value of the
-     * int buttonPressed, which is stored if a button is pressed and is used in the switch
-     * statement in positiveTask(). This version of AlertDialog.Builder allows a theme to be
-     * specified.
+     * Method showTaskDialog() creates a custom alert dialog. This dialog presents text defining
+     * a choice to the user and has buttons for a binary choice. Pressing the rightmost button
+     * will execute the method positiveTask(id) and pressing the leftmost button will execute the
+     * method negativeTask(id). You should define appropriate actions in each. (If the
+     * negativeTask(id) method is empty the default action is just to close the dialog window.)
+     * The argument id is a user-defined integer distinguishing multiple uses of this method in
+     * the same class.  The programmer should switch on id in the response methods
+     * positiveTask(id) and negativeTask(id) to decide which alert dialog to respond to.
+     * This version of AlertDialog.Builder allows a theme to be specified. Removing the theme
+     * argument from the AlertDialog.Builder below will cause the default dialog theme to be
+     * used.
      */
 
-    private void showTaskDialog(String title, String message, int icon, Context context,
+    private void showTaskDialog(int id, String title, String message, int icon, Context context,
                                 String positiveButtonText, String negativeButtonText){
+
+        final int fid=id;  // Must be final to access from anonymous inner class below
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context,R.style.MyDialogTheme);
         builder.setMessage(message).setTitle(title).setIcon(icon);
-        // Add the buttons
+
+        // Add the right button
         builder.setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                positiveTask();
+                positiveTask(fid);
             }
         });
+        // Add the left button
         builder.setNegativeButton(negativeButtonText, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                negativeTask();
+                negativeTask(fid);
             }
         });
 
@@ -311,24 +320,49 @@ public class ShowMap extends AppCompatActivity implements
         dialog.show();
     }
 
-    // Method to execute if user chooses negative button ("Refuse permission" in this case).
-    // For this example we will just return to the main page.
+    // Method to execute if user chooses negative button.
 
-    private void negativeTask(){
-        Toast.makeText(ShowMap.this, "Permission refused. Returning to main page.",
-                Toast.LENGTH_SHORT).show();
-        Intent i = new Intent(this, MainActivity.class);
-        startActivity(i);
+    private void negativeTask(int id){
+
+        // Use id to distinguish if more than one usage of the alert dialog
+        switch(id) {
+
+            case 1:
+                // Warning that this part of app not enabled
+                String warn ="Returning to main page. To enable this ";
+                warn += "part of the app you may manually enable Location permissions in ";
+                warn += " Settings > App > MapExample > Permissions.";
+                // New single-button dialog
+                showTaskDialog(2,"Task not enabled!", warn, dialogIcon, this, "", "OK");
+                break;
+
+            case 2:
+                // Return to main page since permission was denied
+                Intent i = new Intent(this, MainActivity.class);
+                startActivity(i);
+                break;
+        }
+
     }
 
     // Method to execute if user chooses positive button ("OK, I'll Do It" in this case).
     // This starts the map initialization, which will present the location permissions
     // dialog again.
 
-    private void positiveTask(){
-        Toast.makeText(ShowMap.this, "Let's try again.",
-                Toast.LENGTH_SHORT).show();
-        initializeMap();
+    private void positiveTask(int id){
+
+        // Use id to distinguish if more than one usage of the alert dialog
+        switch(id) {
+
+            case 1:
+                // User agreed to enable location
+                initializeMap();
+                break;
+
+            case 2:
+                break;
+        }
+
     }
 
     @Override
@@ -337,6 +371,8 @@ public class ShowMap extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.showmap_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
+
+    // Deal with selections in the options menu
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -120,7 +120,7 @@ public class MapMe extends AppCompatActivity implements
         setSupportActionBar(toolbar);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        // (by the onMapReady(GoogleMap googleMap) callback).
+        // [by the onMapReady(GoogleMap googleMap) callback].
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapme_map);
