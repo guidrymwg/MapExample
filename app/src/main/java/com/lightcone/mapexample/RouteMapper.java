@@ -93,6 +93,8 @@ public class RouteMapper extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.routemapper);
 
+        // Create top toolbar
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.route_map);
         // Remove default toolbar title and replace with an icon
         if (toolbar != null) {
@@ -128,7 +130,7 @@ public class RouteMapper extends AppCompatActivity implements
     }
 
 
-    // Following two methods display and handle the top bar options menu for maps
+    // Inflate toolbar menu.  Actions handled below in onOptionsItemSelected method.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -137,8 +139,10 @@ public class RouteMapper extends AppCompatActivity implements
         return true;
     }
 
+    // Fired by system when map fragment is ready.
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         map=googleMap;
         // Add a click listener to the map
         map.setOnMapClickListener(this);
@@ -252,11 +256,11 @@ public class RouteMapper extends AppCompatActivity implements
         Log.e(TAG, "Error_Code =" + errorCode);
     }
 
-    // Method to initialize the map. Check that map!=null before using
+    // Method to initialize the map.
 
     private void initializeMap() {
 
-        // Enable or disable current location
+/*        // Enable or disable current location
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -266,8 +270,8 @@ public class RouteMapper extends AppCompatActivity implements
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return;
-        }
-        map.setMyLocationEnabled(false);
+        }*/
+        //map.setMyLocationEnabled(false);
 
         // Move camera view and zoom to location
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center,
