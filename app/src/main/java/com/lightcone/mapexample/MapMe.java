@@ -19,7 +19,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -43,7 +42,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -73,11 +71,11 @@ public class MapMe extends AppCompatActivity implements
 
     private static final String TAG = "Mapper";
     final private int REQUEST_LOCATION = 2;
-    private GoogleApiClient locationClient;
+    private GoogleApiClient mGoogleApiClient;
     //private LocationRequest mLocationRequest;
-    private Location currentLocation;
-    private double currentLat;
-    private double currentLon;
+    private Location myLocation;
+    private double myLat;
+    private double myLon;
     private GoogleMap map;
     private LatLng map_center;
     private int zoomOffset = 5;
@@ -93,7 +91,7 @@ public class MapMe extends AppCompatActivity implements
     String[] optionArray = new String[numberOptions];
 
     // Define an object that holds accuracy and frequency parameters
-    private LocationRequest locationRequest;
+    private LocationRequest mLocationRequest;
 
     // Set up shared preferences to persist data.  We will use it later
     // to save the current zoom level if user leaves this activity, and
@@ -140,7 +138,7 @@ public class MapMe extends AppCompatActivity implements
 		 * services such as present position and location updates.
 		 */
 
-        locationClient = new GoogleApiClient.Builder(this)
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -181,20 +179,20 @@ public class MapMe extends AppCompatActivity implements
 		 * services such as present position and location updates.
 		 *//*
 
-        locationClient = new GoogleApiClient.Builder(this)
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
 
         // Create the LocationRequest object
-        locationRequest = LocationRequest.create();
+        mLocationRequest = LocationRequest.create();
         // Set request for high accuracy
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         // Set update interval
-        locationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
         // Set fastest update interval that we can accept
-        locationRequest.setFastestInterval(FASTEST_INTERVAL);*/
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);*/
 
         // Get a shared preferences
         prefs = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
@@ -217,20 +215,20 @@ public class MapMe extends AppCompatActivity implements
 		 * services such as present position and location updates.
 		 *//*
 
-        locationClient = new GoogleApiClient.Builder(this)
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();*/
 
         // Create the LocationRequest object
-        locationRequest = LocationRequest.create();
+        mLocationRequest = LocationRequest.create();
         // Set request for high accuracy
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         // Set update interval
-        locationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
         // Set fastest update interval that we can accept
-        locationRequest.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
     }
 
     public void checkForPermissions(){
@@ -339,8 +337,8 @@ public class MapMe extends AppCompatActivity implements
 
             // Toggle tracking enabled
             case R.id.track_mapme:
-                if (locationClient != null) {
-                    if (locationClient.isConnected()) {
+                if (mGoogleApiClient != null) {
+                    if (mGoogleApiClient.isConnected()) {
                         stopTracking();
                     } else {
                         startTracking();
@@ -400,7 +398,7 @@ public class MapMe extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        if(locationClient != null) locationClient.connect();
+        if(mGoogleApiClient != null) mGoogleApiClient.connect();
     }
 
     // Called by system when Activity is no longer visible, so disconnect location
@@ -410,10 +408,10 @@ public class MapMe extends AppCompatActivity implements
     protected void onStop() {
 
         // If the client is connected, remove location updates and disconnect
-        if (locationClient.isConnected()) {
-            locationClient.disconnect();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
         }
-        locationClient.disconnect();
+        mGoogleApiClient.disconnect();
 
         // Turn off the screen-always-on request
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -437,33 +435,27 @@ public class MapMe extends AppCompatActivity implements
         Toast.makeText(this, getString(R.string.connected_toast),
                 Toast.LENGTH_SHORT).show();
 
-        locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(1000); // Update location every second
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(1000); // Update location every second
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
             return;
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(
-                locationClient, locationRequest, this);
+                mGoogleApiClient, mLocationRequest, this);
 
-        currentLocation = LocationServices.FusedLocationApi.getLastLocation(locationClient);
-        //locationClient.getLastLocation();
-        currentLat = currentLocation.getLatitude();
-        currentLon = currentLocation.getLongitude();
+        myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        //mGoogleApiClient.getLastLocation();
+        myLat = myLocation.getLatitude();
+        myLon = myLocation.getLongitude();
 
         // Center map on current location
-        map_center = new LatLng(currentLat, currentLon);
+        map_center = new LatLng(myLat, myLon);
 
         if (map != null) {
             initializeMap();
@@ -478,7 +470,7 @@ public class MapMe extends AppCompatActivity implements
         // present class implements the LocationListener interface and hence
         // inherits its properties.
 
-        //locationClient.requestLocationUpdates(locationRequest, this);
+        //mGoogleApiClient.requestLocationUpdates(mLocationRequest, this);
 
     }
 
@@ -569,17 +561,17 @@ public class MapMe extends AppCompatActivity implements
 
     // Starts location tracking
     private void startTracking(){
-        locationClient.connect();
+        mGoogleApiClient.connect();
         Toast.makeText(this, "Location tracking started", Toast.LENGTH_SHORT).show();
 
     }
 
     // Stops location tracking
     private void stopTracking(){
-        if (locationClient.isConnected()) {
-            locationClient.disconnect();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
         }
-        locationClient.disconnect();
+        mGoogleApiClient.disconnect();
         Toast.makeText(this, "Location tracking halted", Toast.LENGTH_SHORT).show();
     }
 

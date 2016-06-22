@@ -36,6 +36,15 @@ public class ShowMap extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,     // Is this needed?
         OnMapReadyCallback {
+
+    // Update interval in milliseconds for location services
+    private static final long UPDATE_INTERVAL = 5000;
+    // Fastest update interval in milliseconds for location services
+    private static final long FASTEST_INTERVAL = 1000;
+    // Google Play diagnostics constant
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    // Speed threshold for orienting map in direction of motion (m/s)
+    private static final double SPEED_THRESH = 1;
     final private int REQUEST_LOCATION = 2;
     private static final String TAG = "Mapper";
     private static double lat;
@@ -88,19 +97,29 @@ public class ShowMap extends AppCompatActivity implements
                 .addOnConnectionFailedListener(this)
                 .build();
 
+        // Create the LocationRequest object
+        mLocationRequest = LocationRequest.create();
+        // Set request for high accuracy
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Set update interval
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        // Set fastest update interval that we can accept
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.i(TAG, "map ready");
         map = googleMap;
-        initializeMap();
+        setupMap();
+        initializeLocation();
     }
 
     // Method to initialize the map.  Check for fine-location permission before calling
     // location services
 
-    private void initializeMap() {
+    private void initializeLocation() {
 
         Log.i(TAG, "lat=" + map_center.latitude + " lon=" + map_center.longitude
                 + " fine permission="
@@ -126,7 +145,14 @@ public class ShowMap extends AppCompatActivity implements
             myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             Log.i(TAG, "Location enabled.  Requested lat=" + map_center.latitude
                     + " Requested lon=" + map_center.longitude);
-            setupMap();
+            if (myLocation != null)
+                Log.i(TAG, "My location: Latitude=" + myLocation.getLatitude() + "  Longitude="
+                        + myLocation.getLongitude());
+            //setupMap();
+            //            map.setMyLocationEnabled(trk);
+
+
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
         }
     }
 
@@ -134,12 +160,8 @@ public class ShowMap extends AppCompatActivity implements
     // access fine location has been given by user (at runtime for Android 6, API 23 and
     // beyond; at install for earlier versions of Android).
 
-    public void setupMap(){
+    public void setupMap() {
 
-        //            map.setMyLocationEnabled(trk);
-
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
-//
         // Initialize type of map
         map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
@@ -165,35 +187,35 @@ public class ShowMap extends AppCompatActivity implements
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
-        Log.i(TAG, "onRequestPermissionsResult - Permission result: requestCode="+requestCode);
+        Log.i(TAG, "onRequestPermissionsResult - Permission result: requestCode=" + requestCode);
 
         // Since this method may handle more than one type of permission, distinguish which one by a
         // switch on the requestCode provided by the system.
 
-        switch(requestCode){
+        switch (requestCode) {
 
             // The permission response was for fine location
-            case REQUEST_LOCATION :
-                Log.i(TAG, "Fine location permission granted: requestCode="+requestCode);
+            case REQUEST_LOCATION:
+                Log.i(TAG, "Fine location permission granted: requestCode=" + requestCode);
                 // If the request was canceled by user, the results arrays are empty
-                if(grantResults.length > 0
-                 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     // Permission was granted. Do the location task that triggered the
                     // permission request
 
-                    setupMap();
+                    initializeLocation();
 
                 } else {
                     Log.i(TAG, "onRequestPermissionsResult - permission denied: requestCode="
-                            +requestCode);
+                            + requestCode);
 
                     // The permission was denied.  Warn the user of the consequences and give
                     // them one last time to enable the permission.
 
-                    showTaskDialog(1,"Warning!",
+                    showTaskDialog(1, "Warning!",
                             "This part of the app will not function without this permission!",
-                            dialogIcon, this, "OK I'll Do It", "Refuse Permission");
+                            dialogIcon, this, "OK, I'll Do It", "Refuse Permission");
 
                 }
                 return;
@@ -249,8 +271,30 @@ public class ShowMap extends AppCompatActivity implements
     }
 
     @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG, "Connected");
+    public void onConnected(Bundle bundle) {
+
+        // Indicate that a connection has been established
+        Toast.makeText(this, getString(R.string.connected_toast),
+                Toast.LENGTH_SHORT).show();
+
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(1000); // Update location every second
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission
+                (this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+
+        myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+        if(myLocation == null)Toast.makeText(this, "myLocation null",
+                    Toast.LENGTH_LONG).show();
 
         if (trk) {
             startLocationUpdates();
@@ -356,7 +400,7 @@ public class ShowMap extends AppCompatActivity implements
 
             case 1:
                 // User agreed to enable location
-                initializeMap();
+                initializeLocation();
                 break;
 
             case 2:
