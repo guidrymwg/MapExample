@@ -14,6 +14,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -32,18 +34,20 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 
-public class RouteMapper extends FragmentActivity implements
+public class RouteMapper extends AppCompatActivity implements
         //GooglePlayServicesClient.ConnectionCallbacks,
         //GooglePlayServicesClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnMarkerClickListener, OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener,
         com.google.android.gms.maps.GoogleMap.OnMapClickListener {
 
@@ -89,24 +93,22 @@ public class RouteMapper extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.routemapper);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.route_map);
+        // Remove default toolbar title and replace with an icon
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        }
+        // Note: getColor(color) deprecated as of API 23
+        toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+
         // Get a handle to the Map Fragment
 
-        map = ((MapFragment) getFragmentManager()
-                .findFragmentById(R.id.route_map)).getMap();
-
-        if (map != null) {
-
-            // Add a click listener to the map
-            map.setOnMapClickListener(this);
-
-            // Add symbol overlays (initially invisible)
-            addAccessSymbols();
-            addFoodSymbols();
-
-        } else {
-            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
-        }
-
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.the_map);
+        mapFragment.getMapAsync(this);
 
 		/* Create a new location client. The first 'this' in the args is the
 		 * present context; the next two indicate that the present class will handle
@@ -136,47 +138,11 @@ public class RouteMapper extends FragmentActivity implements
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public void onMapReady(GoogleMap googleMap) {
+        map=googleMap;
 
-        if (map == null) {
-            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        // Handle item selection
-        switch (item.getItemId()) {
-            // Load route
-            case R.id.route_toggle:
-                loadRouteData();
-                return true;
-            // Toggle satellite overlay
-            case R.id.satellite_route:
-                int mt = map.getMapType();
-                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
-                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                } else {
-                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                }
-                return true;
-            // Toggle access markers
-            case R.id.hc_toggle:
-                toggleAccessSymbols();
-                return true;
-            // Toggle eating markers
-            case R.id.eat_toggle:
-                toggleFoodSymbols();
-                return true;
-            // Settings page
-            case R.id.route_action_settings:
-                // Actions for settings page
-                Intent j = new Intent(this, Settings.class);
-                startActivity(j);
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
+
 
     @Override
     protected void onPause() {
@@ -573,6 +539,51 @@ public class RouteMapper extends FragmentActivity implements
         Log.i(TAG, "Map tapped: Latitude="+latlng.latitude
                 +" Longitude="+latlng.longitude);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (map == null) {
+            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        // Handle item selection
+        switch (item.getItemId()) {
+            // Load route
+            case R.id.route_toggle:
+                loadRouteData();
+                return true;
+            // Toggle satellite overlay
+            case R.id.satellite_route:
+                int mt = map.getMapType();
+                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
+                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                } else {
+                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }
+                return true;
+            // Toggle access markers
+            case R.id.hc_toggle:
+                toggleAccessSymbols();
+                return true;
+            // Toggle eating markers
+            case R.id.eat_toggle:
+                toggleFoodSymbols();
+                return true;
+            // Settings page
+            case R.id.route_action_settings:
+                // Actions for settings page
+                Intent j = new Intent(this, Settings.class);
+                startActivity(j);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
 
 
 	/* Inner class to implement single task on background thread without having to manage
