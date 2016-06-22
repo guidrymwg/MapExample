@@ -475,7 +475,8 @@ public class MapMe extends AppCompatActivity implements
         // Start periodic updates.  This version of requestLocationUpdates is
         // suitable for foreground activities when connected to a LocationClient.
         // The second argument is the LocationListener, which is "this" since the
-        // present class implements the LocationListener interface.
+        // present class implements the LocationListener interface and hence
+        // inherits its properties.
 
         //locationClient.requestLocationUpdates(locationRequest, this);
 

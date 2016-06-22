@@ -10,6 +10,7 @@
     <color name="barTextColor">#ffffff</color>color>
 <!--    <color name="buttonColor">@color/primary_light</color>-->
     <color name="buttonColor">#dedede</color>
+    <color name="dialogBackground">#ffffff</color>
 
     <!-- Palette 1 Generated at http://www.materialpalette.com -->
 <!--    <color name="primary">#FF9800</color>

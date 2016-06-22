@@ -28,7 +28,7 @@
         <!--dialog background-->
         <item name="android:textColorSecondary">@color/secondary_text</item>
         <!--dialog background-->
-        <item name="android:background">@color/primary_light</item>
+        <item name="android:background">@color/dialogBackground</item>
 
     </style>
 

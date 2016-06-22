@@ -7,13 +7,11 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,10 +21,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -103,99 +97,42 @@ public class ShowMap extends AppCompatActivity implements
         initializeMap();
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the tool bar if it is present.
-        getMenuInflater().inflate(R.menu.showmap_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        if (map == null) {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        // Handle item selection
-        switch (item.getItemId()) {
-            // Toggle traffic overlay
-            case R.id.traffic:
-                map.setTrafficEnabled(!map.isTrafficEnabled());
-                return true;
-            // Toggle satellite overlay
-            case R.id.satellite:
-                int mt = map.getMapType();
-                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
-                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                } else {
-                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                }
-                return true;
-            // Toggle 3D building display
-            case R.id.building:
-                map.setBuildingsEnabled(!map.isBuildingsEnabled());
-                // Change camera tilt to view from angle if 3D
-                if (map.isBuildingsEnabled()) {
-                    changeCamera(map, map.getCameraPosition().target,
-                            map.getCameraPosition().zoom,
-                            map.getCameraPosition().bearing, 45, true);
-                } else {
-                    changeCamera(map, map.getCameraPosition().target,
-                            map.getCameraPosition().zoom,
-                            map.getCameraPosition().bearing, 0, true);
-                }
-                return true;
-            // Toggle whether indoor maps displayed
-            case R.id.indoor:
-                map.setIndoorEnabled(!map.isIndoorEnabled());
-                return true;
-            // Settings page
-            case R.id.action_settings:
-                // Actions for settings page
-                Intent j = new Intent(this, Settings.class);
-                startActivity(j);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    // Method to initialize the map.  Check for fine-location permission before calling location services
+    // Method to initialize the map.  Check for fine-location permission before calling
+    // location services
 
     private void initializeMap() {
 
         Log.i(TAG, "lat=" + map_center.latitude + " lon=" + map_center.longitude
                 + " fine permission="
-                + ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION
+                + ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
         ) + " granted=" + PackageManager.PERMISSION_GRANTED);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Permission has not been granted by user previously.  Request it now.
+            // Permission has not been granted by user previously.  Request it now. The system
+            // will present a dialog to the user requesting the permission, with options "accept",
+            // "deny", and a box to check "don't ask again". When the user chooses, the system
+            // will then fire the onRequestPermissionsResult callback, passing in the user-defined
+            // integer defining the type of permission request (REQUEST_LOCATION in this case)
+            // and the "accept" or "deny" user response.  You should respond appropriately
+            // to the user response in onRequestPermissionsResult.
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION);
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         } else {
-
             Log.i(TAG, "Permission has been granted");
-
-            // permission has been granted, continue as usual
+            // permission has been granted, continue the way you would have if no permission
+            // request had intervened.
             myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
             Log.i(TAG, "Location enabled.  Requested lat=" + map_center.latitude
                     + " Requested lon=" + map_center.longitude);
-
             setupMap();
         }
     }
 
     // Method to set up map.  The moveCamera to location command requires that permission to
-    // access fine location has been given by user (at runtime for Android 6, API 23 and beyond; at install
-    // for earlier versions of Android).
+    // access fine location has been given by user (at runtime for Android 6, API 23 and
+    // beyond; at install for earlier versions of Android).
 
     public void setupMap(){
 
@@ -228,7 +165,7 @@ public class ShowMap extends AppCompatActivity implements
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
-        Log.i(TAG, "Permission result: requestCode="+requestCode);
+        Log.i(TAG, "onRequestPermissionsResult - Permission result: requestCode="+requestCode);
 
         // Since this method may handle more than one type of permission, distinguish which one by a
         // switch on the requestCode provided by the system.
@@ -242,17 +179,21 @@ public class ShowMap extends AppCompatActivity implements
                 if(grantResults.length > 0
                  && grantResults[0] == PackageManager.PERMISSION_GRANTED){
 
-                    // Permission was granted. Do the location task that triggered the permission request
+                    // Permission was granted. Do the location task that triggered the
+                    // permission request
 
                     setupMap();
 
                 } else {
-                    Log.i(TAG, "Fine location permission denied: requestCode="+requestCode);
+                    Log.i(TAG, "onRequestPermissionsResult - permission denied: requestCode="
+                            +requestCode);
 
-                    // The permission was denied.  Disable functionality depending on the permission.
+                    // The permission was denied.  Warn the user of the consequences and give
+                    // them one last time to enable the permission.
 
-                    showTaskDialog("Warning!", "This app will not function without this permission!",
-                            launcherIcon, this, "Refuse Permission", "Give Permission");
+                    showTaskDialog("Warning!",
+                            "This part of the app will not function without this permission!",
+                            launcherIcon, this, "OK I'll Do It", "Refuse Permission");
 
                 }
                 return;
@@ -345,7 +286,8 @@ public class ShowMap extends AppCompatActivity implements
      * a button.  This dialog presents a summary of the task to the user and has buttons to either
      * launch the task or cancel the dialog. Which task to present is controlled by the value of the
      * int buttonPressed, which is stored if a button is pressed and is used in the switch
-     * statement in launchTask(). This version of AlertDialog.Builder allows a theme to be specified.
+     * statement in positiveTask(). This version of AlertDialog.Builder allows a theme to be
+     * specified.
      */
 
     private void showTaskDialog(String title, String message, int icon, Context context,
@@ -356,14 +298,12 @@ public class ShowMap extends AppCompatActivity implements
         // Add the buttons
         builder.setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                launchTask();
+                positiveTask();
             }
         });
         builder.setNegativeButton(negativeButtonText, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // Can execute additional code here if desired
-                // Default is cancellation of dialog window.
-                initializeMap();
+                negativeTask();
             }
         });
 
@@ -371,13 +311,83 @@ public class ShowMap extends AppCompatActivity implements
         dialog.show();
     }
 
-    // Method to execute if user chooses positive button ("Refuse permission" in this case).
+    // Method to execute if user chooses negative button ("Refuse permission" in this case).
     // For this example we will just return to the main page.
 
-    private void launchTask(){
-        Toast.makeText(ShowMap.this, "Permission refused. Returning to main page.", Toast.LENGTH_SHORT).show();
+    private void negativeTask(){
+        Toast.makeText(ShowMap.this, "Permission refused. Returning to main page.",
+                Toast.LENGTH_SHORT).show();
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
     }
 
+    // Method to execute if user chooses positive button ("OK, I'll Do It" in this case).
+    // This starts the map initialization, which will present the location permissions
+    // dialog again.
+
+    private void positiveTask(){
+        Toast.makeText(ShowMap.this, "Let's try again.",
+                Toast.LENGTH_SHORT).show();
+        initializeMap();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the tool bar if it is present.
+        getMenuInflater().inflate(R.menu.showmap_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (map == null) {
+            Toast.makeText(this, getString(R.string.nomap_error),
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        // Handle item selection
+        switch (item.getItemId()) {
+            // Toggle traffic overlay
+            case R.id.traffic:
+                map.setTrafficEnabled(!map.isTrafficEnabled());
+                return true;
+            // Toggle satellite overlay
+            case R.id.satellite:
+                int mt = map.getMapType();
+                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
+                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                } else {
+                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }
+                return true;
+            // Toggle 3D building display
+            case R.id.building:
+                map.setBuildingsEnabled(!map.isBuildingsEnabled());
+                // Change camera tilt to view from angle if 3D
+                if (map.isBuildingsEnabled()) {
+                    changeCamera(map, map.getCameraPosition().target,
+                            map.getCameraPosition().zoom,
+                            map.getCameraPosition().bearing, 45, true);
+                } else {
+                    changeCamera(map, map.getCameraPosition().target,
+                            map.getCameraPosition().zoom,
+                            map.getCameraPosition().bearing, 0, true);
+                }
+                return true;
+            // Toggle whether indoor maps displayed
+            case R.id.indoor:
+                map.setIndoorEnabled(!map.isIndoorEnabled());
+                return true;
+            // Settings page
+            case R.id.action_settings:
+                // Actions for settings page
+                Intent j = new Intent(this, Settings.class);
+                startActivity(j);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }
