@@ -24,7 +24,8 @@ import java.util.List;
 import android.location.Address;
 import android.location.Geocoder;
 
-public class MainActivity extends AppCompatActivity implements android.view.View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements
+        android.view.View.OnClickListener {
 
     static final String TAG = "Mapper";
     final private int REQUEST_LOCATION = 2;
@@ -83,10 +84,8 @@ public class MainActivity extends AppCompatActivity implements android.view.View
                 (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
         fifthButton.getBackground().setColorFilter
                 (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
-/*        sixthButton.getBackground().setColorFilter
-                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);*/
         sixthButton.getBackground().setColorFilter
-                (new LightingColorFilter(0xff000000,getResources().getColor(R.color.buttonColor)));
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
 
         // Following prevents some devices (for example, Nexus 7 running Android 4.4.2) from opening
         // the soft keyboard when the app is launched rather than when
@@ -95,29 +94,6 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         this.getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-    }
-
-    public void checkForPermissions(){
-        Log.i(TAG, " fine permission="
-                + ActivityCompat.checkSelfPermission
-                (this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                + " granted=" + PackageManager.PERMISSION_GRANTED);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission has not been granted by user previously.  Request it now.
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION);
-        } else {
-
-            Log.i(TAG, "Permission has been granted");
-
-            // permission has been granted, continue as usual
-            //myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-            //setupMap();
-        }
-        return;
     }
 
     @Override

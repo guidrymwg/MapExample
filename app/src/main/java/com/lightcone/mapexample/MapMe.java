@@ -54,8 +54,6 @@ import android.widget.Toast;
 
 
 public class MapMe extends AppCompatActivity implements
-        //GooglePlayServicesClient.ConnectionCallbacks,
-        //GooglePlayServicesClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
@@ -76,6 +74,7 @@ public class MapMe extends AppCompatActivity implements
     private static final String TAG = "Mapper";
     final private int REQUEST_LOCATION = 2;
     private GoogleApiClient locationClient;
+    //private LocationRequest mLocationRequest;
     private Location currentLocation;
     private double currentLat;
     private double currentLon;
@@ -117,13 +116,22 @@ public class MapMe extends AppCompatActivity implements
         }
         // Note: getColor(color) deprecated as of API 23
         toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
-        toolbar.setTitle("");
+        toolbar.setTitle("Map Location");
         setSupportActionBar(toolbar);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        // (by the onMapReady(GoogleMap googleMap) callback).
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapme_map);
         mapFragment.getMapAsync(this);
+
+        /* We are going to need fine location permission from the user at runtime for
+        * some of things we are going to do, so let's go ahead and request it.*/
+
+        checkForPermissions();
+
+        createLocationClient();
 
        /* if (map != null) {
 
@@ -147,12 +155,45 @@ public class MapMe extends AppCompatActivity implements
                     Toast.LENGTH_LONG).show();
         }*/
 
-        /* We are going to need fine location permission from the user at runtime for
-        * some of things we are going to do, so let's go ahead and request it.*/
 
-        checkForPermissions();
 
 		/* Create new location client. The first 'this' in args is the present
+		 * context; the next two 'this' args indicate that this class will handle
+		 * callbacks associated with connection and connection errors, respectively
+		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
+		 * You cannot use the location client until the onConnected callback
+		 * fires, indicating a valid connection.  At that point you can access location
+		 * services such as present position and location updates.
+		 *//*
+
+        locationClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        // Create the LocationRequest object
+        locationRequest = LocationRequest.create();
+        // Set request for high accuracy
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Set update interval
+        locationRequest.setInterval(UPDATE_INTERVAL);
+        // Set fastest update interval that we can accept
+        locationRequest.setFastestInterval(FASTEST_INTERVAL);*/
+
+        // Get a shared preferences
+        prefs = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
+        // Get a SharedPreferences editor
+        prefsEditor = prefs.edit();
+
+        // Keep screen on while this map location tracking activity is running
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+    }
+
+    public void createLocationClient(){
+
+        /* Create new location client. The first 'this' in args is the present
 		 * context; the next two 'this' args indicate that this class will handle
 		 * callbacks associated with connection and connection errors, respectively
 		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
@@ -175,15 +216,6 @@ public class MapMe extends AppCompatActivity implements
         locationRequest.setInterval(UPDATE_INTERVAL);
         // Set fastest update interval that we can accept
         locationRequest.setFastestInterval(FASTEST_INTERVAL);
-
-        // Get a shared preferences
-        prefs = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
-        // Get a SharedPreferences editor
-        prefsEditor = prefs.edit();
-
-        // Keep screen on while this map location tracking activity is running
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
     }
 
     public void checkForPermissions(){
@@ -204,10 +236,13 @@ public class MapMe extends AppCompatActivity implements
             // permission has been granted, continue as usual
             //myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-            //setupMap();
+            createLocationClient();
         }
         return;
     }
+
+    // This callback is executed when the map is ready, passing in the map reference
+    // googleMap.
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -228,6 +263,7 @@ public class MapMe extends AppCompatActivity implements
 
         // Add marker info window click listener
         map.setOnInfoWindowClickListener(this);
+
     }
 
     // Following two methods display and handle the top bar options menu for maps
@@ -347,7 +383,7 @@ public class MapMe extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        locationClient.connect();
+        if(locationClient != null) locationClient.connect();
     }
 
     // Called by system when Activity is no longer visible, so disconnect location
@@ -388,7 +424,10 @@ public class MapMe extends AppCompatActivity implements
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(1000); // Update location every second
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -401,7 +440,8 @@ public class MapMe extends AppCompatActivity implements
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 locationClient, locationRequest, this);
 
-        currentLocation = LocationServices.FusedLocationApi.getLastLocation(locationClient); //locationClient.getLastLocation();
+        currentLocation = LocationServices.FusedLocationApi.getLastLocation(locationClient);
+        //locationClient.getLastLocation();
         currentLat = currentLocation.getLatitude();
         currentLon = currentLocation.getLongitude();
 
@@ -421,6 +461,7 @@ public class MapMe extends AppCompatActivity implements
         // present class implements the LocationListener interface.
 
         //locationClient.requestLocationUpdates(locationRequest, this);
+
     }
 
     @Override
@@ -474,7 +515,10 @@ public class MapMe extends AppCompatActivity implements
     private void initializeMap() {
 
         // Enable or disable current location
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
