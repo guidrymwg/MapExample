@@ -124,11 +124,6 @@ public class MapMe extends AppCompatActivity implements
                 .findFragmentById(R.id.mapme_map);
         mapFragment.getMapAsync(this);
 
-        /* We are going to need fine location permission from the user at runtime for
-        * some of things we are going to do, so let's go ahead and request it.*/
-
-        //checkForPermissions();
-
         /* Create new location client. The first 'this' in args is the present
 		 * context; the next two 'this' args indicate that this class will handle
 		 * callbacks associated with connection and connection errors, respectively
@@ -146,54 +141,6 @@ public class MapMe extends AppCompatActivity implements
 
         createLocationClient();
 
-       /* if (map != null) {
-
-            // Set the initial zoom level of the map
-            currentZoom = map.getMaxZoomLevel() - zoomOffset;
-
-            // Add a click listener to the map
-            map.setOnMapClickListener(this);
-
-            // Add a long-press listener to the map
-            map.setOnMapLongClickListener(this);
-
-            // Add Marker click listener to the map
-            map.setOnMarkerClickListener(this);
-
-            // Add marker info window click listener
-            map.setOnInfoWindowClickListener(this);
-
-        } else {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
-        }*/
-
-
-
-		/* Create new location client. The first 'this' in args is the present
-		 * context; the next two 'this' args indicate that this class will handle
-		 * callbacks associated with connection and connection errors, respectively
-		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
-		 * You cannot use the location client until the onConnected callback
-		 * fires, indicating a valid connection.  At that point you can access location
-		 * services such as present position and location updates.
-		 *//*
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
-        // Create the LocationRequest object
-        mLocationRequest = LocationRequest.create();
-        // Set request for high accuracy
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // Set update interval
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        // Set fastest update interval that we can accept
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);*/
-
         // Get a shared preferences
         prefs = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
         // Get a SharedPreferences editor
@@ -205,21 +152,6 @@ public class MapMe extends AppCompatActivity implements
     }
 
     public void createLocationClient(){
-
-/*        *//* Create new location client. The first 'this' in args is the present
-		 * context; the next two 'this' args indicate that this class will handle
-		 * callbacks associated with connection and connection errors, respectively
-		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
-		 * You cannot use the location client until the onConnected callback
-		 * fires, indicating a valid connection.  At that point you can access location
-		 * services such as present position and location updates.
-		 *//*
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();*/
 
         // Create the LocationRequest object
         mLocationRequest = LocationRequest.create();
@@ -261,6 +193,29 @@ public class MapMe extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap) {
 
         map = googleMap;
+        setupMap();
+
+        checkForPermissions();
+
+    }
+
+
+    public void setupMap(){
+
+        // Initialize type of map to normal
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        // Initialize 3D buildings enabled for map view
+        map.setBuildingsEnabled(false);
+
+        // Initialize whether indoor maps are shown if available
+        map.setIndoorEnabled(false);
+
+        // Initialize traffic overlay
+        map.setTrafficEnabled(false);
+
+        // Disable rotation gestures
+        map.getUiSettings().setRotateGesturesEnabled(false);
 
         // Set the initial zoom level of the map
         currentZoom = map.getMaxZoomLevel() - zoomOffset;
@@ -276,9 +231,6 @@ public class MapMe extends AppCompatActivity implements
 
         // Add marker info window click listener
         map.setOnInfoWindowClickListener(this);
-
-        checkForPermissions();
-
     }
 
     // Following two methods display and handle the top bar options menu for maps
@@ -543,21 +495,9 @@ public class MapMe extends AppCompatActivity implements
         // Move camera view and zoom to location
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center,currentZoom));
 
-        // Initialize type of map to normal
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        // Initialize 3D buildings enabled for map view
-        map.setBuildingsEnabled(false);
-
-        // Initialize whether indoor maps are shown if available
-        map.setIndoorEnabled(false);
-
-        // Initialize traffic overlay
-        map.setTrafficEnabled(false);
-
-        // Disable rotation gestures
-        map.getUiSettings().setRotateGesturesEnabled(false);
     }
+
 
     // Starts location tracking
     private void startTracking(){

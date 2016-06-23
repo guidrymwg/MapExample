@@ -111,12 +111,34 @@ public class ShowMap extends AppCompatActivity implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.i(TAG, "map ready");
         map = googleMap;
         setupMap();
+        initializeLocation();
+    }
+
+    // Method to set up map.  The moveCamera to location command requires that permission to
+    // access fine location has been given by user (at runtime for Android 6, API 23 and
+    // beyond; at install for earlier versions of Android).
+
+    public void setupMap() {
+
+        // Initialize type of map
+        map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
+        // Initialize 3D buildings enabled for map view
+        map.setBuildingsEnabled(false);
+
+        // Initialize whether indoor maps are shown if available
+        map.setIndoorEnabled(false);
+
+        // Initialize traffic overlay
+        map.setTrafficEnabled(false);
+
+        // Enable rotation gestures
+        map.getUiSettings().setRotateGesturesEnabled(true);
+
         // Add a long-press listener to the map
         map.setOnMapLongClickListener(this);
-        initializeLocation();
     }
 
     // Method to initialize the map.  Check for fine-location permission before calling
@@ -159,27 +181,7 @@ public class ShowMap extends AppCompatActivity implements
         }
     }
 
-    // Method to set up map.  The moveCamera to location command requires that permission to
-    // access fine location has been given by user (at runtime for Android 6, API 23 and
-    // beyond; at install for earlier versions of Android).
 
-    public void setupMap() {
-
-        // Initialize type of map
-        map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-
-        // Initialize 3D buildings enabled for map view
-        map.setBuildingsEnabled(false);
-
-        // Initialize whether indoor maps are shown if available
-        map.setIndoorEnabled(false);
-
-        // Initialize traffic overlay
-        map.setTrafficEnabled(false);
-
-        // Enable rotation gestures
-        map.getUiSettings().setRotateGesturesEnabled(true);
-    }
 
     /*Following method invoked by the system after the user response to a runtime permission request
      (Android 6, API 23 and beyond implement such runtime permissions). The system passes to this
