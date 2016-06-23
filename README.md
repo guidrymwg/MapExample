@@ -3,8 +3,8 @@ The projects in these repositories correspond to individual lessons in the free 
 
 The project MapExample illustrates a number of applications using Google Maps in conjunction with location services.
 
-------------------------
-
 # header
-
+--------------
 ## header
+
+### header
