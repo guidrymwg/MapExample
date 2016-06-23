@@ -21,7 +21,8 @@ This project assumes the Gradle build system in Android Studio. It was targeted 
  - A Google Maps <a href="https://developers.google.com/maps/documentation/android-api/start#step_4_get_a_google_maps_api_key" target="_new">API key</a>
 
 ## Getting Started
-First download the project
+First download this project using the <b>Clone or Download</b> button, either by importing into Android Studio using GitHub version control, or by downloading and unpacking a .zip file.  Full instructions for both may be found by going to 
+http://eagle.phys.utk.edu/guidry/android/ and selecting <i>Appendices > Packages for All Projects</i> from the menu.
 
 The full instructions for creating this project from scratch may be found by going to http://eagle.phys.utk.edu/guidry/android/ and selecting Map Example from the menu.
 
