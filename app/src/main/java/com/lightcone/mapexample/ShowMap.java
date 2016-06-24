@@ -28,6 +28,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.Toast;
 import android.Manifest;
 
@@ -141,8 +142,8 @@ public class ShowMap extends AppCompatActivity implements
         map.setOnMapLongClickListener(this);
     }
 
-    // Method to initialize the map.  Check for fine-location permission before calling
-    // location services
+    // Method to initialize location services for the map.  Check for fine-location
+    // permission before calling location services
 
     private void initializeLocation() {
 
@@ -154,28 +155,37 @@ public class ShowMap extends AppCompatActivity implements
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+
             // Permission has not been granted by user previously.  Request it now. The system
             // will present a dialog to the user requesting the permission, with options "accept",
             // "deny", and a box to check "don't ask again". When the user chooses, the system
             // will then fire the onRequestPermissionsResult callback, passing in the user-defined
             // integer defining the type of permission request (REQUEST_LOCATION in this case)
-            // and the "accept" or "deny" user response.  You should respond appropriately
-            // to the user response in onRequestPermissionsResult.
+            // and the "accept" or "deny" user response.  You should deal appropriately
+            // with the user response in onRequestPermissionsResult.
+
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         } else {
             Log.i(TAG, "Permission has been granted");
             // permission has been granted, continue the way you would have if no permission
             // request had intervened.
+
+            //mGoogleApiClient.connect();
             myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             Log.i(TAG, "Location enabled.  Requested lat=" + map_center.latitude
                     + " Requested lon=" + map_center.longitude);
-            if (myLocation != null)
-                Log.i(TAG, "My location: Latitude=" + myLocation.getLatitude() + "  Longitude="
-                        + myLocation.getLongitude());
+
             //setupMap();
             //            map.setMyLocationEnabled(trk);
 
+            //map.setMyLocationEnabled(true);
+
+
+
+            if (myLocation != null)
+                Log.i(TAG, "My location: Latitude=" + myLocation.getLatitude() + "  Longitude="
+                        + myLocation.getLongitude());
 
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
         }
@@ -195,7 +205,7 @@ public class ShowMap extends AppCompatActivity implements
         Log.i(TAG, "onRequestPermissionsResult - Permission result: requestCode=" + requestCode);
 
         // Since this method may handle more than one type of permission, distinguish which one by a
-        // switch on the requestCode provided by the system.
+        // switch on the requestCode passed back to you by the system.
 
         switch (requestCode) {
 
@@ -220,8 +230,7 @@ public class ShowMap extends AppCompatActivity implements
 
                     showTaskDialog(1, "Warning!",
                             "This part of the app will not function without this permission!",
-                            dialogIcon, this, "OK, I'll Do It", "Refuse Permission");
-
+                            dialogIcon, this, "OK, Do Over", "Refuse Permission");
                 }
                 return;
 
@@ -275,6 +284,8 @@ public class ShowMap extends AppCompatActivity implements
         map_center = new LatLng(lat, lon);
     }
 
+    // Callback from GoogleApiClient indicating that a connection has been established
+
     @Override
     public void onConnected(Bundle bundle) {
 
@@ -284,7 +295,8 @@ public class ShowMap extends AppCompatActivity implements
 
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(1000); // Update location every second
+        mLocationRequest.setInterval(10000); // Update location every second
+        mLocationRequest.setFastestInterval(5000);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission
@@ -300,6 +312,7 @@ public class ShowMap extends AppCompatActivity implements
 
         if(myLocation == null)Toast.makeText(this, "myLocation null",
                     Toast.LENGTH_LONG).show();
+
 
         if (trk) {
             startLocationUpdates();
@@ -324,6 +337,9 @@ public class ShowMap extends AppCompatActivity implements
 
     }
 
+    // Following callback associated with implementing LocationListener.
+    // It fires when a location change is detected, passing in the new
+    // location as the variable "newLocation".
 
     @Override
     public void onLocationChanged(Location location) {
@@ -485,16 +501,44 @@ public class ShowMap extends AppCompatActivity implements
         showStreetView(lat,lon);
     }
 
-    /* Open a Street View, if available.
-	 * The user will have the choice of getting the Street View
-	 * in a browser, or with the StreetView app if it is installed.
-	 * If no Street View exists for a given location, this will present
-	 * a blank page.
+    /* Open a Street View, if available. The user will have the choice of getting the Street View
+	 * in a browser, or with the StreetView app if it is installed. If no Street View exists
+	 * for a given location, this will present a blank page.
 	 */
 
     private void showStreetView(double lat, double lon ){
         String uriString = "google.streetview:cbll="+lat+","+lon;
         Intent streetView = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uriString));
         startActivity(streetView);
+    }
+
+    /* The following two lifecycle methods conserve resources by ensuring that location services
+    are connected when the map is visible and disconnected when it is not.
+	 */
+
+    // Called by system when Activity becomes visible, so connect location client.
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(mGoogleApiClient != null) mGoogleApiClient.connect();
+    }
+
+    // Called by system when Activity is no longer visible, so disconnect location
+    // client, which invalidates it.
+
+    @Override
+    protected void onStop() {
+
+        // If the client is connected, remove location updates and disconnect
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+        mGoogleApiClient.disconnect();
+
+        // Turn off the screen-always-on request
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        super.onStop();
     }
 }

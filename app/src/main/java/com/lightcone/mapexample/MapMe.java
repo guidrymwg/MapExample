@@ -61,9 +61,9 @@ public class MapMe extends AppCompatActivity implements
         GoogleMap.OnInfoWindowClickListener {
 
     // Update interval in milliseconds for location services
-    private static final long UPDATE_INTERVAL = 5000;
+    private static final long UPDATE_INTERVAL = 10000;
     // Fastest update interval in milliseconds for location services
-    private static final long FASTEST_INTERVAL = 1000;
+    private static final long FASTEST_INTERVAL = 5000;
     // Google Play diagnostics constant
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     // Speed threshold for orienting map in direction of motion (m/s)
@@ -375,10 +375,8 @@ public class MapMe extends AppCompatActivity implements
     // connection errors, respectively.
 
 
-	/* Called by Location Services when the request to connect the
-	 * client finishes successfully. At this point, you can
-	 * request current location or begin periodic location updates.
-	 */
+	/* Called by Location Services when the request to connect the client finishes successfully.
+	At this point, you can request current location or begin periodic location updates. */
 
     @Override
     public void onConnected(Bundle dataBundle) {
@@ -389,7 +387,8 @@ public class MapMe extends AppCompatActivity implements
 
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(1000); // Update location every second
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
@@ -494,7 +493,6 @@ public class MapMe extends AppCompatActivity implements
 
         // Move camera view and zoom to location
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center,currentZoom));
-
 
     }
 
@@ -624,7 +622,7 @@ public class MapMe extends AppCompatActivity implements
         if(locationExtras != null){
             Log.i(TAG, "Extras:"+locationExtras.toString());
             if(locationExtras.containsKey("satellites")){
-                numberSatellites = locationExtras.getInt("satellites");
+                numberSatellites = locationExtras.getShort("satellites");
             }
         }
 
