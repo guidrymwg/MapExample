@@ -142,7 +142,17 @@ public class MapMe extends AppCompatActivity implements
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        createLocationClient();
+
+        // Create the LocationRequest object
+        mLocationRequest = LocationRequest.create();
+        // Set request for high accuracy
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Set update interval
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        // Set fastest update interval that we can accept
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+
+        //createLocationClient();
 
         // Get a shared preferences
         prefs = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
@@ -267,7 +277,7 @@ public class MapMe extends AppCompatActivity implements
             // permission has been granted, continue the way you would have if no permission
             // request had intervened.
 
-            mGoogleApiClient.connect();
+            //mGoogleApiClient.connect();
             Log.i(TAG, "mGoogleApiClient = "+mGoogleApiClient.isConnected());
 
             myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
@@ -294,6 +304,7 @@ public class MapMe extends AppCompatActivity implements
             currentZoom=15;
 
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, currentZoom));
+
             initializeMap();
         }
     }
@@ -546,6 +557,7 @@ public class MapMe extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         if(mGoogleApiClient != null) mGoogleApiClient.connect();
+        Log.i(TAG, "onStart: mGoogleApiClient_isconnected="+mGoogleApiClient.isConnected());
     }
 
     // Called by system when Activity is no longer visible, so disconnect location
