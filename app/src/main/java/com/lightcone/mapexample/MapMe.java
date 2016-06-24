@@ -31,7 +31,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -43,7 +42,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -86,7 +84,6 @@ public class MapMe extends AppCompatActivity implements
     private float speed;
     private float acc;
     private Circle localCircle;
-    private static final int dialogIcon = R.mipmap.ic_launcher;
 
     private double lon;
     private double lat;
@@ -142,17 +139,7 @@ public class MapMe extends AppCompatActivity implements
                 .addOnConnectionFailedListener(this)
                 .build();
 
-
-        // Create the LocationRequest object
-        mLocationRequest = LocationRequest.create();
-        // Set request for high accuracy
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // Set update interval
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        // Set fastest update interval that we can accept
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-
-        //createLocationClient();
+        createLocationClient();
 
         // Get a shared preferences
         prefs = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
@@ -207,9 +194,8 @@ public class MapMe extends AppCompatActivity implements
 
         map = googleMap;
         setupMap();
-        initializeLocation();
 
-        //checkForPermissions();
+        checkForPermissions();
 
     }
 
@@ -246,198 +232,6 @@ public class MapMe extends AppCompatActivity implements
         // Add marker info window click listener
         map.setOnInfoWindowClickListener(this);
     }
-
-
-    // Method to initialize location services for the map.  Check for fine-location
-    // permission before calling location services
-
-    private void initializeLocation() {
-
-       /* Log.i(TAG, "lat=" + map_center.latitude + " lon=" + map_center.longitude
-                + " fine permission="
-                + ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-        ) + " granted=" + PackageManager.PERMISSION_GRANTED);*/
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission has not been granted by user previously.  Request it now. The system
-            // will present a dialog to the user requesting the permission, with options "accept",
-            // "deny", and a box to check "don't ask again". When the user chooses, the system
-            // will then fire the onRequestPermissionsResult callback, passing in the user-defined
-            // integer defining the type of permission request (REQUEST_LOCATION in this case)
-            // and the "accept" or "deny" user response.  You should deal appropriately
-            // with the user response in onRequestPermissionsResult.
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-        } else {
-            Log.i(TAG, "Permission has been granted");
-            // permission has been granted, continue the way you would have if no permission
-            // request had intervened.
-
-            //mGoogleApiClient.connect();
-            Log.i(TAG, "mGoogleApiClient = "+mGoogleApiClient.isConnected());
-
-            myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-            if(myLocation == null) Log.i(TAG, "myLocation is null");
-/*            Log.i(TAG, "Location enabled.  Requested lat=" + map_center.latitude
-                    + " Requested lon=" + map_center.longitude);*/
-
-            //setupMap();
-            //            map.setMyLocationEnabled(trk);
-
-            //map.setMyLocationEnabled(true);
-
-
-            myLat = myLocation.getLatitude();
-            myLon = myLocation.getLongitude();
-
-            if (myLocation != null)
-                Log.i(TAG, "My location: Latitude=" + myLocation.getLatitude() + "  Longitude="
-                        + myLocation.getLongitude());
-
-            map_center = new LatLng(myLat, myLon);
-
-            currentZoom=15;
-
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, currentZoom));
-
-            initializeMap();
-        }
-    }
-
-    /*Following method invoked by the system after the user response to a runtime permission request
-     (Android 6, API 23 and beyond implement such runtime permissions). The system passes to this
-     method the user's response, which you then should act upon in this method.  This method can respond
-     to more than one type permission.  The variable requestCode distinguishes which permission is being
-     processed. */
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-
-        Log.i(TAG, "onRequestPermissionsResult - Permission result: requestCode=" + requestCode);
-
-        // Since this method may handle more than one type of permission, distinguish which one by a
-        // switch on the requestCode passed back to you by the system.
-
-        switch (requestCode) {
-
-            // The permission response was for fine location
-            case REQUEST_LOCATION:
-                Log.i(TAG, "Fine location permission granted: requestCode=" + requestCode);
-                // If the request was canceled by user, the results arrays are empty
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // Permission was granted. Do the location task that triggered the
-                    // permission request
-
-                    initializeLocation();
-
-                } else {
-                    Log.i(TAG, "onRequestPermissionsResult - permission denied: requestCode="
-                            + requestCode);
-
-                    // The permission was denied.  Warn the user of the consequences and give
-                    // them one last time to enable the permission.
-
-                    showTaskDialog(1, "Warning!",
-                            "This part of the app will not function without this permission!",
-                            dialogIcon, this, "OK, Do Over", "Refuse Permission");
-                }
-                return;
-
-        }
-    }
-
-    /**
-     * Method showTaskDialog() creates a custom alert dialog. This dialog presents text defining
-     * a choice to the user and has buttons for a binary choice. Pressing the rightmost button
-     * will execute the method positiveTask(id) and pressing the leftmost button will execute the
-     * method negativeTask(id). You should define appropriate actions in each. (If the
-     * negativeTask(id) method is empty the default action is just to close the dialog window.)
-     * The argument id is a user-defined integer distinguishing multiple uses of this method in
-     * the same class.  The programmer should switch on id in the response methods
-     * positiveTask(id) and negativeTask(id) to decide which alert dialog to respond to.
-     * This version of AlertDialog.Builder allows a theme to be specified. Removing the theme
-     * argument from the AlertDialog.Builder below will cause the default dialog theme to be
-     * used.
-     */
-
-    private void showTaskDialog(int id, String title, String message, int icon, Context context,
-                                String positiveButtonText, String negativeButtonText){
-
-        final int fid=id;  // Must be final to access from anonymous inner class below
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(context,R.style.MyDialogTheme);
-        builder.setMessage(message).setTitle(title).setIcon(icon);
-
-        // Add the right button
-        builder.setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                positiveTask(fid);
-            }
-        });
-        // Add the left button
-        builder.setNegativeButton(negativeButtonText, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                negativeTask(fid);
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
-    // Method to execute if user chooses negative button.
-
-    private void negativeTask(int id){
-
-        // Use id to distinguish if more than one usage of the alert dialog
-        switch(id) {
-
-            case 1:
-                // Warning that this part of app not enabled
-                String warn ="Returning to main page. To enable this ";
-                warn += "part of the app you may manually enable Location permissions in ";
-                warn += " Settings > App > MapExample > Permissions.";
-                // New single-button dialog
-                showTaskDialog(2,"Task not enabled!", warn, dialogIcon, this, "", "OK");
-                break;
-
-            case 2:
-                // Return to main page since permission was denied
-                Intent i = new Intent(this, MainActivity.class);
-                startActivity(i);
-                break;
-        }
-
-    }
-
-    // Method to execute if user chooses positive button ("OK, I'll Do It" in this case).
-    // This starts the map initialization, which will present the location permissions
-    // dialog again.
-
-    private void positiveTask(int id){
-
-        // Use id to distinguish if more than one usage of the alert dialog
-        switch(id) {
-
-            case 1:
-                // User agreed to enable location
-                initializeLocation();
-                break;
-
-            case 2:
-                break;
-        }
-
-    }
-
-
 
     // Following two methods display and handle the top bar options menu for maps
 
@@ -557,7 +351,6 @@ public class MapMe extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         if(mGoogleApiClient != null) mGoogleApiClient.connect();
-        Log.i(TAG, "onStart: mGoogleApiClient_isconnected="+mGoogleApiClient.isConnected());
     }
 
     // Called by system when Activity is no longer visible, so disconnect location
@@ -611,8 +404,6 @@ public class MapMe extends AppCompatActivity implements
         //mGoogleApiClient.getLastLocation();
         myLat = myLocation.getLatitude();
         myLon = myLocation.getLongitude();
-
-        Log.i(TAG, "onConnected, lat="+myLat);
 
         // Center map on current location
         map_center = new LatLng(myLat, myLon);
@@ -831,7 +622,7 @@ public class MapMe extends AppCompatActivity implements
         if(locationExtras != null){
             Log.i(TAG, "Extras:"+locationExtras.toString());
             if(locationExtras.containsKey("satellites")){
-                numberSatellites = locationExtras.getShort("satellites");
+                numberSatellites = locationExtras.getInt("satellites");
             }
         }
 
@@ -1069,11 +860,11 @@ public class MapMe extends AppCompatActivity implements
         startActivity(streetView);
     }
 
-   /* *//*Following method invoked by the system after the user response to a runtime permission request
+    /*Following method invoked by the system after the user response to a runtime permission request
      (Android 6, API 23 and beyond implement such runtime permissions). The system passes to this
      method the user's response, which you then should act upon in this method.  This method can respond
      to more than one type permission.  The variable requestCode distinguishes which permission is being
-     processed. *//*
+     processed. */
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -1105,6 +896,6 @@ public class MapMe extends AppCompatActivity implements
 
         }
 
-    }*/
+    }
 
 }
