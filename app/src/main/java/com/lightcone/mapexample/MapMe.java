@@ -437,10 +437,11 @@ public class MapMe extends AppCompatActivity implements
         //mGoogleApiClient.getLastLocation();
         myLat = myLocation.getLatitude();
         myLon = myLocation.getLongitude();
-        //currentZoom = 15;
-        /*if (prefs.contains("KEY_ZOOM") && map != null) {
-            currentZoom = prefs.getFloat("KEY_ZOOM", map.getMaxZoomLevel());
-        }*/
+
+        // Works if zoom hardwired as follows, but has wrong zoom level if
+        // currentZoom variable is used.
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, 16));
+
     }
 
     @Override
@@ -920,10 +921,8 @@ public class MapMe extends AppCompatActivity implements
 //                    showTaskDialog("Warning!", "This app will not function without this permission!",
 //                            launcherIcon, this, "Refuse Permission", "Give Permission");
 
-                }break;
-
+                }
+                break;
         }
-
     }
-
 }
