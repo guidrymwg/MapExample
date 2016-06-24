@@ -173,19 +173,15 @@ public class MapMe extends AppCompatActivity implements
     }
 
     public void checkForPermissions(){
-        Log.i(TAG, " fine permission="
-                + ActivityCompat.checkSelfPermission
-                (this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                + " granted=" + PackageManager.PERMISSION_GRANTED);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "checkForPermission: No permission. Requesting that user grant it.");
             // Permission has not been granted by user previously.  Request it now.
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION);
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         } else {
-
-            Log.i(TAG, "Permission has been granted");
+            Log.i(TAG, "checkForPermission: Permission has been granted");
 
             // permission has been granted, continue as usual
             //myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
@@ -328,7 +324,7 @@ public class MapMe extends AppCompatActivity implements
             prefsEditor.commit();
         }
         super.onPause();
-        Log.i(TAG, "onPause: Zoom=" + currentZoom);
+        Log.i(TAG, "onPause: Zoom=" + currentZoom+" maxMapZoom="+map.getMaxZoomLevel());
     }
 
     @Override
@@ -341,6 +337,7 @@ public class MapMe extends AppCompatActivity implements
         if (prefs.contains("KEY_ZOOM") && map != null) {
             currentZoom = prefs.getFloat("KEY_ZOOM", map.getMaxZoomLevel());
         }
+
         Log.i(TAG, "onResume: Zoom=" + currentZoom);
 
         // Keep screen on while this map location tracking activity is running
@@ -359,6 +356,7 @@ public class MapMe extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         if(mGoogleApiClient != null) mGoogleApiClient.connect();
+        Log.i(TAG, "onStart");
     }
 
     // Called by system when Activity is no longer visible, so disconnect location
@@ -367,6 +365,7 @@ public class MapMe extends AppCompatActivity implements
     @Override
     protected void onStop() {
 
+        Log.i(TAG, "onStop");
         // If the client is connected, remove location updates and disconnect
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
@@ -389,9 +388,35 @@ public class MapMe extends AppCompatActivity implements
     @Override
     public void onConnected(Bundle dataBundle) {
 
+        Log.i(TAG, "onConnected");
+
         // Indicate that a connection has been established
         Toast.makeText(this, getString(R.string.connected_toast),
                 Toast.LENGTH_SHORT).show();
+
+        initializeLocation();
+
+        // Center map on current location
+        map_center = new LatLng(myLat, myLon);
+
+        if (map != null) {
+            initializeMap();
+        } else {
+            Toast.makeText(this, getString(R.string.nomap_error),
+                    Toast.LENGTH_LONG).show();
+        }
+
+        // Start periodic updates.  This version of requestLocationUpdates is
+        // suitable for foreground activities when connected to a LocationClient.
+        // The second argument is the LocationListener, which is "this" since the
+        // present class implements the LocationListener interface and hence
+        // inherits its properties.
+
+        //mGoogleApiClient.requestLocationUpdates(mLocationRequest, this);
+
+    }
+
+    public void initializeLocation(){
 
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -412,25 +437,10 @@ public class MapMe extends AppCompatActivity implements
         //mGoogleApiClient.getLastLocation();
         myLat = myLocation.getLatitude();
         myLon = myLocation.getLongitude();
-
-        // Center map on current location
-        map_center = new LatLng(myLat, myLon);
-
-        if (map != null) {
-            initializeMap();
-        } else {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
-        }
-
-        // Start periodic updates.  This version of requestLocationUpdates is
-        // suitable for foreground activities when connected to a LocationClient.
-        // The second argument is the LocationListener, which is "this" since the
-        // present class implements the LocationListener interface and hence
-        // inherits its properties.
-
-        //mGoogleApiClient.requestLocationUpdates(mLocationRequest, this);
-
+        //currentZoom = 15;
+        /*if (prefs.contains("KEY_ZOOM") && map != null) {
+            currentZoom = prefs.getFloat("KEY_ZOOM", map.getMaxZoomLevel());
+        }*/
     }
 
     @Override
@@ -883,25 +893,27 @@ public class MapMe extends AppCompatActivity implements
 
             // The permission response was for fine location
             case REQUEST_LOCATION :
-                Log.i(TAG, "Fine location permission granted: requestCode="+requestCode);
+
                 // If the request was canceled by user, the results arrays are empty
                 if(grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED){
 
-                    // Permission was granted. Do the location task that triggered the permission request
+                    Log.i(TAG, "onRequestPermissions: permission granted");
+
+                    // Permission was granted. Do the location task that triggered permission request
 
                     if(mGoogleApiClient == null) {
-                        Log.i(TAG, "GoogleApiClient is null");
+                        Log.i(TAG, "onRequestPermissionsResults:  GoogleApiClient is null");
 
                     } else {
                         Log.i(TAG, "OnRequestPermissionsResult: mGoogleApiClient connected="
                         + mGoogleApiClient.isConnected());
                     }
 
-                    createLocationClient();
+                    initializeLocation();
 
                 } else {
-                    Log.i(TAG, "Fine location permission denied: requestCode="+requestCode);
+                    Log.i(TAG, "OnRequestPermissionsResult: User refused to give permission");
 
                     // The permission was denied.  Disable functionality depending on the permission.
 
