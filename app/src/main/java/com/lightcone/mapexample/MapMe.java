@@ -266,8 +266,10 @@ public class MapMe extends AppCompatActivity implements
             Log.i(TAG, "Permission has been granted");
             // permission has been granted, continue the way you would have if no permission
             // request had intervened.
+
+            mGoogleApiClient.connect();
             Log.i(TAG, "mGoogleApiClient = "+mGoogleApiClient.isConnected());
-            //mGoogleApiClient.connect();
+
             myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
             if(myLocation == null) Log.i(TAG, "myLocation is null");
@@ -597,6 +599,8 @@ public class MapMe extends AppCompatActivity implements
         //mGoogleApiClient.getLastLocation();
         myLat = myLocation.getLatitude();
         myLon = myLocation.getLongitude();
+
+        Log.i(TAG, "onConnected, lat="+myLat);
 
         // Center map on current location
         map_center = new LatLng(myLat, myLon);
