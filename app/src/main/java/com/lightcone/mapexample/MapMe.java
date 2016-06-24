@@ -235,6 +235,7 @@ public class MapMe extends AppCompatActivity implements
 
         // Add marker info window click listener
         map.setOnInfoWindowClickListener(this);
+
     }
 
     // Following two methods display and handle the top bar options menu for maps
@@ -246,71 +247,7 @@ public class MapMe extends AppCompatActivity implements
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (map == null) {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        // Handle item selection
-        switch (item.getItemId()) {
-
-            // Toggle traffic overlay
-            case R.id.traffic_mapme:
-                map.setTrafficEnabled(!map.isTrafficEnabled());
-                return true;
-
-            // Toggle satellite overlay
-            case R.id.satellite_mapme:
-                int mt = map.getMapType();
-                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
-                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                } else {
-                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                }
-                return true;
-
-            // Toggle 3D building display
-            case R.id.building_mapme:
-                map.setBuildingsEnabled(!map.isBuildingsEnabled());
-                // Change camera tilt to view from angle if 3D
-                if (map.isBuildingsEnabled()) {
-                    changeCamera(map, map.getCameraPosition().target, currentZoom,
-                            map.getCameraPosition().bearing, 45, true);
-                } else {
-                    changeCamera(map, map.getCameraPosition().target, currentZoom,
-                            map.getCameraPosition().bearing, 0, true);
-                }
-                return true;
-
-            // Toggle whether indoor maps displayed
-            case R.id.indoor_mapme:
-                map.setIndoorEnabled(!map.isIndoorEnabled());
-                return true;
-
-            // Toggle tracking enabled
-            case R.id.track_mapme:
-                if (mGoogleApiClient != null) {
-                    if (mGoogleApiClient.isConnected()) {
-                        stopTracking();
-                    } else {
-                        startTracking();
-                    }
-                }
-                return true;
-            // Settings page
-            case R.id.action_settings:
-                Intent j = new Intent(this, Settings.class);
-                startActivity(j);
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     // Save the current zoom level when going into the background
 
@@ -439,8 +376,10 @@ public class MapMe extends AppCompatActivity implements
         myLon = myLocation.getLongitude();
 
         // Works if zoom hardwired as follows, but has wrong zoom level if
-        // currentZoom variable is used.
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, 16));
+        // currentZoom variable is used. However, Does not show dot for location
+
+        map.setMyLocationEnabled(true);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLat,myLon), 15));
 
     }
 
@@ -923,6 +862,72 @@ public class MapMe extends AppCompatActivity implements
 
                 }
                 break;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (map == null) {
+            Toast.makeText(this, getString(R.string.nomap_error),
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        // Handle item selection
+        switch (item.getItemId()) {
+
+            // Toggle traffic overlay
+            case R.id.traffic_mapme:
+                map.setTrafficEnabled(!map.isTrafficEnabled());
+                return true;
+
+            // Toggle satellite overlay
+            case R.id.satellite_mapme:
+                int mt = map.getMapType();
+                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
+                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                } else {
+                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }
+                return true;
+
+            // Toggle 3D building display
+            case R.id.building_mapme:
+                map.setBuildingsEnabled(!map.isBuildingsEnabled());
+                // Change camera tilt to view from angle if 3D
+                if (map.isBuildingsEnabled()) {
+                    changeCamera(map, map.getCameraPosition().target, currentZoom,
+                            map.getCameraPosition().bearing, 45, true);
+                } else {
+                    changeCamera(map, map.getCameraPosition().target, currentZoom,
+                            map.getCameraPosition().bearing, 0, true);
+                }
+                return true;
+
+            // Toggle whether indoor maps displayed
+            case R.id.indoor_mapme:
+                map.setIndoorEnabled(!map.isIndoorEnabled());
+                return true;
+
+            // Toggle tracking enabled
+            case R.id.track_mapme:
+                if (mGoogleApiClient != null) {
+                    if (mGoogleApiClient.isConnected()) {
+                        stopTracking();
+                    } else {
+                        startTracking();
+                    }
+                }
+                return true;
+            // Settings page
+            case R.id.action_settings:
+                Intent j = new Intent(this, Settings.class);
+                startActivity(j);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
