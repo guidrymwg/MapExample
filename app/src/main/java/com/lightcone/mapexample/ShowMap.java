@@ -140,6 +140,8 @@ public class ShowMap extends AppCompatActivity implements
 
         // Add a long-press listener to the map
         map.setOnMapLongClickListener(this);
+
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
     }
 
     // Method to initialize location services for the map.  Check for fine-location
@@ -187,7 +189,7 @@ public class ShowMap extends AppCompatActivity implements
                 Log.i(TAG, "My location: Latitude=" + myLocation.getLatitude() + "  Longitude="
                         + myLocation.getLongitude());
 
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
+            //map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
         }
     }
 

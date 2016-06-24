@@ -139,7 +139,16 @@ public class MapMe extends AppCompatActivity implements
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        createLocationClient();
+        //createLocationClient();
+
+        // Create the LocationRequest object
+        mLocationRequest = LocationRequest.create();
+        // Set request for high accuracy
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Set update interval
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        // Set fastest update interval that we can accept
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 
         // Get a shared preferences
         prefs = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
@@ -181,9 +190,8 @@ public class MapMe extends AppCompatActivity implements
             // permission has been granted, continue as usual
             //myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-            createLocationClient();
+            //createLocationClient();
         }
-        return;
     }
 
     // This callback is executed when the map is ready, passing in the map reference
@@ -193,8 +201,8 @@ public class MapMe extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap) {
 
         map = googleMap;
-        setupMap();
 
+        setupMap();
         checkForPermissions();
 
     }
@@ -509,7 +517,7 @@ public class MapMe extends AppCompatActivity implements
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
-        mGoogleApiClient.disconnect();
+
         Toast.makeText(this, "Location tracking halted", Toast.LENGTH_SHORT).show();
     }
 
@@ -882,6 +890,14 @@ public class MapMe extends AppCompatActivity implements
 
                     // Permission was granted. Do the location task that triggered the permission request
 
+                    if(mGoogleApiClient == null) {
+                        Log.i(TAG, "GoogleApiClient is null");
+
+                    } else {
+                        Log.i(TAG, "OnRequestPermissionsResult: mGoogleApiClient connected="
+                        + mGoogleApiClient.isConnected());
+                    }
+
                     createLocationClient();
 
                 } else {
@@ -892,7 +908,7 @@ public class MapMe extends AppCompatActivity implements
 //                    showTaskDialog("Warning!", "This app will not function without this permission!",
 //                            launcherIcon, this, "Refuse Permission", "Give Permission");
 
-                }return;
+                }break;
 
         }
 
