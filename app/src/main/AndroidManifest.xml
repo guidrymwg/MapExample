@@ -46,6 +46,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MapsActivity" android:label="Default map"> </activity>
         <activity android:name=".IndoorExample" android:label="Indoor example"> </activity>
         <activity android:name=".MapMarkers" android:label="Map markers"> </activity>
         <activity android:name=".ShowMap" android:label="Show Map"> </activity>

@@ -1,12 +1,8 @@
 package com.lightcone.mapexample;
 
-import android.app.Activity;
-import android.content.pm.PackageManager;
-import android.graphics.LightingColorFilter;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.content.Intent;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,7 +12,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.Manifest;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -28,7 +23,6 @@ public class MainActivity extends AppCompatActivity implements
         android.view.View.OnClickListener {
 
     static final String TAG = "Mapper";
-    final private int REQUEST_LOCATION = 2;
     private double lon;
     private double lat;
     private EditText placeText;
@@ -45,9 +39,7 @@ public class MainActivity extends AppCompatActivity implements
         // Set up Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar2);
         // Remove default toolbar title and replace with an icon
-        if (toolbar != null) {
-            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
-        }
+        toolbar.setNavigationIcon(R.mipmap.ic_launcher);
         // Note: getColor(color) deprecated as of API 23
         toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
         toolbar.setTitle("Map Example");
@@ -68,11 +60,15 @@ public class MainActivity extends AppCompatActivity implements
         fifthButton.setOnClickListener(this);
         View sixthButton = findViewById(R.id.mapme_button);
         sixthButton.setOnClickListener(this);
+        View seventhButton = findViewById(R.id.default_button);
+        seventhButton.setOnClickListener(this);
 
         // Color the buttons with our color theme.  Note that
         // getColor(color) is deprecated as of API 23, but we use it for
         // compatibility with earlier versions.  PorterDuff.Mode.MULTIPLY multiplies
-        // the current button color value by the specified color.
+        // the current button color value by the specified color. See colors.xml
+        // for the definition of buttonColor, which supplies the tint.  Presently
+        // a light gray (#dedede) is used so it has only a small effect on the button color.
 
         firstButton.getBackground().setColorFilter
                 (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
@@ -86,10 +82,11 @@ public class MainActivity extends AppCompatActivity implements
                 (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
         sixthButton.getBackground().setColorFilter
                 (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+        seventhButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
 
         // Following prevents some devices (for example, Nexus 7 running Android 4.4.2) from opening
-        // the soft keyboard when the app is launched rather than when
-        // an input field is selected.
+        // the soft keyboard when the app is launched rather than when an input field is selected.
 
         this.getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -98,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to tool bar.
+        // Inflate the menu; this adds items to toolbar.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -196,13 +193,15 @@ public class MainActivity extends AppCompatActivity implements
                 startActivity(q);
                 break;
 
+            case R.id.default_button:
+                Intent r = new Intent(this, MapsActivity.class);
+                startActivity(r);
+                break;
         }
-
     }
 
     // Method to geocode location passed as string (e.g., "Pentagon"), which
-    // places the corresponding latitude and longitude in the variables lat and
-    // lon.
+    // places the corresponding latitude and longitude in the variables lat and lon.
 
     private void geocodeLocation(String placeName){
 
@@ -254,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements
             Log.i(TAG,"lat="+lat+" lon="+lon);
 
         } catch (IOException e){
-            Log.e(TAG, "I/O Failure; are you connected to a network?",e);
+            Log.e(TAG, "I/O Failure; do you have a network connection?",e);
         }
     }
 }

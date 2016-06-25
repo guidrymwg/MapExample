@@ -37,6 +37,7 @@
 
     <string name="routeLabel">Route Overlay on Map</string>
     <string name="mapme_label">Map Current Location</string>
+    <string name="default_label">Show Default Map</string>
     <string name="connected_toast">Location services connected</string>
     <string name="disconnected_toast">Location services disconnected</string>
     <string name="route_toggle_label">Route</string>

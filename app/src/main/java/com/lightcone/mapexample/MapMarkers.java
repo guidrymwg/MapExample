@@ -198,6 +198,11 @@ public class MapMarkers extends AppCompatActivity implements
         // Enable rotation gestures
         map.getUiSettings().setRotateGesturesEnabled(true);
 
+        // Enable zoom controls on map [in addition to gesture controls like spread or double-
+        // tap with 1 finger (to zoom in), and pinch or double-tap with two fingers (to zoom out)].
+
+        map.getUiSettings().setZoomControlsEnabled(true);
+
         addMapMarkers();
 
         // Add marker info window click listener

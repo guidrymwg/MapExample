@@ -11,10 +11,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-//import com.google.android.gms.common.ConnectionResult;
-//import com.google.android.gms.common.GooglePlayServicesClient;
-//import com.google.android.gms.location.LocationClient;
-//import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
@@ -63,7 +59,7 @@ public class MapMe extends AppCompatActivity implements
     // Update interval in milliseconds for location services
     private static final long UPDATE_INTERVAL = 5000;
     // Fastest update interval in milliseconds for location services
-    private static final long FASTEST_INTERVAL = 500;
+    private static final long FASTEST_INTERVAL = 1000;
     // Google Play diagnostics constant
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     // Speed threshold for orienting map in direction of motion (m/s)
@@ -220,6 +216,11 @@ public class MapMe extends AppCompatActivity implements
 
         // Disable rotation gestures
         map.getUiSettings().setRotateGesturesEnabled(false);
+
+        // Enable zoom controls on map [in addition to gesture controls like spread or double-
+        // tap with 1 finger (to zoom in), and pinch or double-tap with two fingers (to zoom out)].
+
+        map.getUiSettings().setZoomControlsEnabled(true);
 
         // Set the initial zoom level of the map
         currentZoom = map.getMaxZoomLevel() - zoomOffset;

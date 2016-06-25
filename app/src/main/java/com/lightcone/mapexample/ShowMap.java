@@ -9,6 +9,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -20,7 +21,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -43,11 +43,14 @@ public class ShowMap extends AppCompatActivity implements
     private static final long UPDATE_INTERVAL = 5000;
     // Fastest update interval in milliseconds for location services
     private static final long FASTEST_INTERVAL = 1000;
-    // Google Play diagnostics constant
-    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-    // Speed threshold for orienting map in direction of motion (m/s)
-    private static final double SPEED_THRESH = 1;
-    final private int REQUEST_LOCATION = 2;
+
+    // User defines value of REQUEST_LOCATION. It will identify a permission request
+    // specifically for ACCESS_FINE_LOCATION.  Define a different integer for each
+    // "dangerous" permission that you will request at runtime (in this example there
+    // is only one).
+
+    final private int REQUEST_LOCATION = 2; // User-defined integer
+
     private static final String TAG = "Mapper";
     private static double lat;
     private static double lon;
@@ -59,6 +62,7 @@ public class ShowMap extends AppCompatActivity implements
     private Location myLocation;
     private LocationRequest mLocationRequest;
     private static final int dialogIcon = R.mipmap.ic_launcher;
+
 
 
     @Override
@@ -77,9 +81,9 @@ public class ShowMap extends AppCompatActivity implements
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
-        Log.i(TAG, "Obtain map fragment");
+        // Obtain the SupportMapFragment.  We will be notified when the map is ready to
+        // be used in onMapReady().
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.the_map);
         mapFragment.getMapAsync(this);
@@ -110,6 +114,9 @@ public class ShowMap extends AppCompatActivity implements
 
     }
 
+    // This method will be called when the map is ready.  Only then can we
+    // manipulate the map object.
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
@@ -117,9 +124,7 @@ public class ShowMap extends AppCompatActivity implements
         initializeLocation();
     }
 
-    // Method to set up map.  The moveCamera to location command requires that permission to
-    // access fine location has been given by user (at runtime for Android 6, API 23 and
-    // beyond; at install for earlier versions of Android).
+    // Method to set up map.
 
     public void setupMap() {
 
@@ -138,58 +143,51 @@ public class ShowMap extends AppCompatActivity implements
         // Enable rotation gestures
         map.getUiSettings().setRotateGesturesEnabled(true);
 
+        // Enable zoom controls on map [in addition to gesture controls like spread or double-
+        // tap with 1 finger (to zoom in), and pinch or double-tap with two fingers (to zoom out)].
+
+        map.getUiSettings().setZoomControlsEnabled(true);
+
         // Add a long-press listener to the map
         map.setOnMapLongClickListener(this);
 
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
     }
 
-    // Method to initialize location services for the map.  Check for fine-location
-    // permission before calling location services
+    /* Method to initialize location services for the map.  For Android 6 (API 23) and
+     beyond, we must check for the "dangerous" permission ACCESS_FINE_LOCATION at
+     runtime (in addition to declaring it in the manifest file).  The following code checks
+     for this permission.  If it has already been granted, it proceeds as normal.  If it
+     has not yet been granted by the user, the user is presented with an opportunity to grant
+     it. In general, the rest of this class will not execute until the user has granted such
+     permission.*/
 
     private void initializeLocation() {
-
-        Log.i(TAG, "lat=" + map_center.latitude + " lon=" + map_center.longitude
-                + " fine permission="
-                + ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-        ) + " granted=" + PackageManager.PERMISSION_GRANTED);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // Permission has not been granted by user previously.  Request it now. The system
-            // will present a dialog to the user requesting the permission, with options "accept",
-            // "deny", and a box to check "don't ask again". When the user chooses, the system
-            // will then fire the onRequestPermissionsResult callback, passing in the user-defined
-            // integer defining the type of permission request (REQUEST_LOCATION in this case)
-            // and the "accept" or "deny" user response.  You should deal appropriately
-            // with the user response in onRequestPermissionsResult.
+            /* Permission has not been granted by user previously.  Request it now. The system
+             will present a dialog to the user requesting the permission, with options "accept",
+             "deny", and a box to check "don't ask again". When the user chooses, the system
+             will then fire the onRequestPermissionsResult() callback, passing in the user-defined
+             integer defining the type of permission request (REQUEST_LOCATION in this case)
+             and the "accept" or "deny" user response.  We deal appropriately
+             with the user response in our override of onRequestPermissionsResult() below.*/
 
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         } else {
             Log.i(TAG, "Permission has been granted");
-            // permission has been granted, continue the way you would have if no permission
-            // request had intervened.
 
-            //mGoogleApiClient.connect();
             myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             Log.i(TAG, "Location enabled.  Requested lat=" + map_center.latitude
                     + " Requested lon=" + map_center.longitude);
-
-            //setupMap();
-            //            map.setMyLocationEnabled(trk);
-
-            //map.setMyLocationEnabled(true);
-
-
 
             if (myLocation != null)
                 Log.i(TAG, "My location: Latitude=" + myLocation.getLatitude() + "  Longitude="
                         + myLocation.getLongitude());
 
-            //map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, zm));
         }
     }
 
@@ -198,8 +196,8 @@ public class ShowMap extends AppCompatActivity implements
     /*Following method invoked by the system after the user response to a runtime permission request
      (Android 6, API 23 and beyond implement such runtime permissions). The system passes to this
      method the user's response, which you then should act upon in this method.  This method can respond
-     to more than one type permission.  The variable requestCode distinguishes which permission is being
-     processed. */
+     to more than one type permission.  The user-defined integer requestCode distinguishes which
+     permission is being processed. */
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -300,6 +298,7 @@ public class ShowMap extends AppCompatActivity implements
         mLocationRequest.setInterval(10000); // Update location every second
         mLocationRequest.setFastestInterval(5000);
 
+        // Be certain that permission has previously been given for fine location
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission
                 (this, Manifest.permission.ACCESS_COARSE_LOCATION)

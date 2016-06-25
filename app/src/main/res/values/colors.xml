@@ -1,27 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--<color name="colorPrimary">#535353</color>
-    <color name="colorPrimaryDark">#262626</color>
-    <color name="colorAccent">#5ea2c6</color>-->
-<!--    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>-->
+
     <color name="barColor">@color/accent</color>
     <color name="barTextColor">#ffffff</color>color>
-<!--    <color name="buttonColor">@color/primary_light</color>-->
-    <color name="buttonColor">#dedede</color>
+    <!--<color name="buttonColor">@color/primary_light</color>-->  <!-- Tint with a palette color-->
+    <color name="buttonColor">#dedede</color>  <!-- Tint with very light gray-->
     <color name="dialogBackground">#ffffff</color>
 
-    <!-- Palette 1 Generated at http://www.materialpalette.com -->
-<!--    <color name="primary">#FF9800</color>
-    <color name="primary_dark">#F57C00</color>
-    <color name="primary_light">#FFE0B2</color>
+    <!-- Choose one of the following palettes and leave the rest commented out -->
+
+    <!-- Palette 1  Generated at http://www.materialpalette.com -->
+    <color name="primary">#009688</color>
+    <color name="primary_dark">#00796B</color>
+    <color name="primary_light">#B2DFDB</color>
     <color name="accent">#448AFF</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#727272</color>
-    <color name="icons">#212121</color>
-    <color name="divider">#B6B6B6</color>-->
-
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#B6B6B6</color>
 
     <!-- Palette 2  Generated at http://www.materialpalette.com-->
 <!--    <color name="primary">#FFC107</color>
@@ -54,16 +50,6 @@
     <color name="divider">#B6B6B6</color>-->
 
     <!-- Palette 5  Generated at http://www.materialpalette.com -->
-    <color name="primary">#009688</color>
-    <color name="primary_dark">#00796B</color>
-    <color name="primary_light">#B2DFDB</color>
-    <color name="accent">#448AFF</color>
-    <color name="primary_text">#212121</color>
-    <color name="secondary_text">#727272</color>
-    <color name="icons">#FFFFFF</color>
-    <color name="divider">#B6B6B6</color>
-
-    <!-- Palette 6  Generated at http://www.materialpalette.com -->
 <!--    <color name="primary">#673AB7</color>
     <color name="primary_dark">#512DA8</color>
     <color name="primary_light">#D1C4E9</color>
@@ -73,8 +59,8 @@
     <color name="icons">#FFFFFF</color>
     <color name="divider">#B6B6B6</color>-->
 
-     <!-- Palette 7  Generated at http://www.materialpalette.com -->
- <!--   <color name="primary">#8BC34A</color>
+     <!-- Palette 6  Generated at http://www.materialpalette.com -->
+   <!-- <color name="primary">#8BC34A</color>
     <color name="primary_dark">#689F38</color>
     <color name="primary_light">#DCEDC8</color>
     <color name="accent">#CDDC39</color>

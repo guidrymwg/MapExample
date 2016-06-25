@@ -2,21 +2,16 @@
 
     <!-- Base application theme. NoActionBar because we are using a Toolbar -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
 
         <!-- Set AppCompat’s actionBarStyle -->
         <item name="actionBarStyle">@style/AppTheme</item>
-
-        <!--<item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>-->
 
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
         <item name="android:textColor">@color/primary_text</item>
 
-        <!--<item name="android:windowBackground">@drawable/route_icon</item>-->
+        <!--<item name="android:windowBackground">@drawable/mapbkg</item>-->  <!--Background image-->
 
     </style>
 

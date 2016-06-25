@@ -143,6 +143,11 @@ public class IndoorExample extends AppCompatActivity {
 
         // Disable rotation gestures
         map.getUiSettings().setRotateGesturesEnabled(false);
+
+        // Enable zoom controls on map [in addition to gesture controls like spread or double-
+        // tap with 1 finger (to zoom in), and pinch or double-tap with two fingers (to zoom out)].
+
+        map.getUiSettings().setZoomControlsEnabled(true);
     }
 
     // Method to animate camera properties change
