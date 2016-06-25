@@ -14,6 +14,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -32,19 +34,22 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 
-public class RouteMapper extends FragmentActivity implements
+public class RouteMapper extends AppCompatActivity implements
         //GooglePlayServicesClient.ConnectionCallbacks,
         //GooglePlayServicesClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnMarkerClickListener, OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener,
+        GoogleMap.OnMapLongClickListener,
         com.google.android.gms.maps.GoogleMap.OnMapClickListener {
 
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -89,24 +94,24 @@ public class RouteMapper extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.routemapper);
 
+        // Create top toolbar
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.route_map);
+        // Remove default toolbar title and replace with an icon
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        }
+        // Note: getColor(color) deprecated as of API 23
+        toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+
         // Get a handle to the Map Fragment
 
-        map = ((MapFragment) getFragmentManager()
-                .findFragmentById(R.id.route_map)).getMap();
-
-        if (map != null) {
-
-            // Add a click listener to the map
-            map.setOnMapClickListener(this);
-
-            // Add symbol overlays (initially invisible)
-            addAccessSymbols();
-            addFoodSymbols();
-
-        } else {
-            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
-        }
-
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.the_map);
+        mapFragment.getMapAsync(this);
 
 		/* Create a new location client. The first 'this' in the args is the
 		 * present context; the next two indicate that the present class will handle
@@ -126,7 +131,7 @@ public class RouteMapper extends FragmentActivity implements
     }
 
 
-    // Following two methods display and handle the top bar options menu for maps
+    // Inflate toolbar menu.  Actions handled below in onOptionsItemSelected method.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -135,48 +140,23 @@ public class RouteMapper extends FragmentActivity implements
         return true;
     }
 
+    // Fired by system when map fragment is ready.
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public void onMapReady(GoogleMap googleMap) {
 
-        if (map == null) {
-            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
-            return false;
-        }
+        map=googleMap;
 
-        // Handle item selection
-        switch (item.getItemId()) {
-            // Load route
-            case R.id.route_toggle:
-                loadRouteData();
-                return true;
-            // Toggle satellite overlay
-            case R.id.satellite_route:
-                int mt = map.getMapType();
-                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
-                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                } else {
-                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                }
-                return true;
-            // Toggle access markers
-            case R.id.hc_toggle:
-                toggleAccessSymbols();
-                return true;
-            // Toggle eating markers
-            case R.id.eat_toggle:
-                toggleFoodSymbols();
-                return true;
-            // Settings page
-            case R.id.route_action_settings:
-                // Actions for settings page
-                Intent j = new Intent(this, Settings.class);
-                startActivity(j);
-                return true;
+        // Add a click listener to the map
+        map.setOnMapClickListener(this);
 
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        // Add a long-press listener to the map
+        map.setOnMapLongClickListener(this);
+
+        // Add symbol overlays (initially invisible)
+        addAccessSymbols();
+        addFoodSymbols();
     }
+
 
     @Override
     protected void onPause() {
@@ -281,11 +261,11 @@ public class RouteMapper extends FragmentActivity implements
         Log.e(TAG, "Error_Code =" + errorCode);
     }
 
-    // Method to initialize the map. Check that map!=null before using
+    // Method to initialize the map.
 
     private void initializeMap() {
 
-        // Enable or disable current location
+/*        // Enable or disable current location
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -295,8 +275,8 @@ public class RouteMapper extends FragmentActivity implements
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return;
-        }
-        map.setMyLocationEnabled(false);
+        }*/
+        //map.setMyLocationEnabled(false);
 
         // Move camera view and zoom to location
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center,
@@ -361,55 +341,55 @@ public class RouteMapper extends FragmentActivity implements
 
     public void overlayRoute() {
 
-        int lw = 8;
+        int lw = 16;
 
-        // Color legend for path slope.  Increasing values of the index
-        // indicate steeper paths
+            // Define the route as a line with multiple segments
+            route = new Polyline[numberRoutePoints];
+            PolylineOptions routeOptions;
 
-        int [] slopeColor = new int[4];
-        slopeColor[0] = Color.parseColor("#cc5ea2c6");
-        slopeColor[1] = Color.parseColor("#ccebc05c");
-        slopeColor[2] = Color.parseColor("#ccbb6255");
-        slopeColor[3] = Color.parseColor("#ccd27451");
+            // Color legend for path slope.  Increasing values of the index
+            // indicate steeper paths
 
-        // Define the route as a line with multiple segments
-        route = new Polyline[numberRoutePoints];
-        PolylineOptions routeOptions;
+            int[] slopeColor = new int[4];
+            slopeColor[0] = Color.parseColor("#cc5ea2c6");
+            slopeColor[1] = Color.parseColor("#ccebc05c");
+            slopeColor[2] = Color.parseColor("#ccbb6255");
+            slopeColor[3] = Color.parseColor("#ccd27451");
 
-        // Add each segment of the route to the map with appropriate color
-        for(int i=0; i< numberRoutePoints-1; i++){
-            routeOptions = new PolylineOptions().width(lw);
-            routeOptions.add(routePoints[i]);
-            routeOptions.add(routePoints[i+1]);
-            routeOptions.color(slopeColor[routeGrade[i]-1]);
-            route[i] = map.addPolyline(routeOptions);
-        }
 
-        // Circle at beginning of route
-        CircleOptions circleOptions = new CircleOptions()
-                .center(routePoints[0])
-                .radius(4)
-                .strokeWidth(0)
-                .strokeColor(slopeColor[0])
-                .fillColor(Color.DKGRAY)
-                .zIndex(100);
-        map.addCircle(circleOptions);
+            // Add each segment of the route to the map with appropriate color
+            for (int i = 0; i < numberRoutePoints - 1; i++) {
+                routeOptions = new PolylineOptions().width(lw);
+                routeOptions.add(routePoints[i]);
+                routeOptions.add(routePoints[i + 1]);
+                routeOptions.color(slopeColor[routeGrade[i] - 1]);
+                route[i] = map.addPolyline(routeOptions);
+            }
 
-        // Circle at end of route
-        circleOptions = circleOptions.center(routePoints[numberRoutePoints-1]);
-        map.addCircle(circleOptions);
+            // Circle at beginning of route
+            CircleOptions circleOptions = new CircleOptions()
+                    .center(routePoints[0])
+                    .radius(6)
+                    .strokeWidth(0)
+                    .strokeColor(slopeColor[0])
+                    .fillColor(Color.DKGRAY)
+                    .zIndex(100);
+            map.addCircle(circleOptions);
 
-        // Add warning areas
+            // Circle at end of route
+            circleOptions = circleOptions.center(routePoints[numberRoutePoints - 1]);
+            map.addCircle(circleOptions);
 
-        for (int i=0; i< totalWaypoints; i++){
-            map.addMarker(new MarkerOptions()
-                    .title("WARNING")
-                    .snippet(warnPointSnippet[i])
-                    .position(warnPointLatLng[i])
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-            );
-        }
+            // Add warning areas
 
+            for (int i = 0; i < totalWaypoints; i++) {
+                map.addMarker(new MarkerOptions()
+                        .title("WARNING")
+                        .snippet(warnPointSnippet[i])
+                        .position(warnPointLatLng[i])
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                );
+            }
     }
 
     // Method to overlay access symbols
@@ -468,6 +448,8 @@ public class RouteMapper extends FragmentActivity implements
 
         // Set up food markers overlay
 
+        Log.i(TAG,"Adding food symbols");
+
         foodLoc[0] = new LatLng(35.952967,-83.929158);
         foodLoc[1] = new LatLng(35.953000,-83.928000);
         foodLoc[2] = new LatLng(35.955000,-83.929158);
@@ -493,7 +475,7 @@ public class RouteMapper extends FragmentActivity implements
                     .snippet(foodMarkerSnippet[i])
                     .title(foodMarkerTitle[i]));
             foodMarker[i].setVisible(foodInitiallyVisible);
-        }
+        };
     }
 
     // Method to toggle visibility of food symbols
@@ -573,6 +555,80 @@ public class RouteMapper extends FragmentActivity implements
         Log.i(TAG, "Map tapped: Latitude="+latlng.latitude
                 +" Longitude="+latlng.longitude);
     }
+
+    // This callback fires for long clicks on the map, passing in the LatLng coordinates.
+    // We will use it to launch a StreetView of the position corresponding to the
+    // long press on the map.
+
+    @Override
+    public void onMapLongClick(LatLng latlng) {
+
+        double lat = latlng.latitude;
+        double lon = latlng.longitude;
+        Log.i(TAG, "Longclick, lat="+lat+" lon="+lon);
+
+        // Launch a StreetView on current location
+        showStreetView(lat,lon);
+
+    }
+
+    /* Open a Street View, if available.
+	 * The user will have the choice of getting the Street View
+	 * in a browser, or with the StreetView app if it is installed.
+	 * If no Street View exists for a given location, this will present
+	 * a blank page.
+	 */
+
+    private void showStreetView(double lat, double lon ){
+        String uriString = "google.streetview:cbll="+lat+","+lon;
+        Intent streetView = new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uriString));
+        startActivity(streetView);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (map == null) {
+            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        // Handle item selection
+        switch (item.getItemId()) {
+            // Load route
+            case R.id.route_toggle:
+                loadRouteData();
+                return true;
+            // Toggle satellite overlay
+            case R.id.satellite_route:
+                int mt = map.getMapType();
+                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
+                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                } else {
+                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }
+                return true;
+            // Toggle access markers
+            case R.id.hc_toggle:
+                toggleAccessSymbols();
+                return true;
+            // Toggle eating markers
+            case R.id.eat_toggle:
+                toggleFoodSymbols();
+                return true;
+            // Settings page
+            case R.id.route_action_settings:
+                // Actions for settings page
+                Intent j = new Intent(this, Settings.class);
+                startActivity(j);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
 
 
 	/* Inner class to implement single task on background thread without having to manage

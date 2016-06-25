@@ -4,10 +4,22 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <fragment
-        android:id="@+id/markers_map"
-        android:name="com.google.android.gms.maps.MapFragment"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar3"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:elevation="10dp"
+        android:minHeight="?attr/actionBarSize"
+        android:background="@color/barColor" />
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/markers_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.lightcone.mapexample.MapMarkers"
+        tools:layout="@layout/showmap" />
 
 </LinearLayout>

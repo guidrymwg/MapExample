@@ -4,6 +4,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar2"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:elevation="0dp"
+        android:minHeight="?attr/actionBarSize"
+        android:background="@color/barColor" />
+
     <fragment
         android:id="@+id/indoor_map"
         android:name="com.google.android.gms.maps.MapFragment"

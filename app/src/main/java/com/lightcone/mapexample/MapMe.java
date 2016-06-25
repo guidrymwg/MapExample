@@ -19,7 +19,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -43,7 +42,8 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,9 +51,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 
-public class MapMe extends FragmentActivity implements
-        //GooglePlayServicesClient.ConnectionCallbacks,
-        //GooglePlayServicesClient.OnConnectionFailedListener,
+public class MapMe extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
@@ -65,17 +63,19 @@ public class MapMe extends FragmentActivity implements
     // Update interval in milliseconds for location services
     private static final long UPDATE_INTERVAL = 5000;
     // Fastest update interval in milliseconds for location services
-    private static final long FASTEST_INTERVAL = 1000;
+    private static final long FASTEST_INTERVAL = 500;
     // Google Play diagnostics constant
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     // Speed threshold for orienting map in direction of motion (m/s)
     private static final double SPEED_THRESH = 1;
 
     private static final String TAG = "Mapper";
-    private GoogleApiClient locationClient;
-    private Location currentLocation;
-    private double currentLat;
-    private double currentLon;
+    final private int REQUEST_LOCATION = 2;
+    private GoogleApiClient mGoogleApiClient;
+    //private LocationRequest mLocationRequest;
+    private Location myLocation;
+    private double myLat;
+    private double myLon;
     private GoogleMap map;
     private LatLng map_center;
     private int zoomOffset = 5;
@@ -91,7 +91,7 @@ public class MapMe extends FragmentActivity implements
     String[] optionArray = new String[numberOptions];
 
     // Define an object that holds accuracy and frequency parameters
-    private LocationRequest locationRequest;
+    private LocationRequest mLocationRequest;
 
     // Set up shared preferences to persist data.  We will use it later
     // to save the current zoom level if user leaves this activity, and
@@ -107,38 +107,24 @@ public class MapMe extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mapme);
 
-      /*  // Get a handle to the Map Fragment
-        map = ((MapFragment) getFragmentManager()
-                .findFragmentById(R.id.mapme_map)).getMapAsync();//getMap();*/
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar4);
+        // Remove default toolbar title and replace with an icon
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        }
+        // Note: getColor(color) deprecated as of API 23
+        toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
+        toolbar.setTitle("Map Location");
+        setSupportActionBar(toolbar);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        // [by the onMapReady(GoogleMap googleMap) callback].
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapme_map);
         mapFragment.getMapAsync(this);
 
-        if (map != null) {
-
-            // Set the initial zoom level of the map
-            currentZoom = map.getMaxZoomLevel() - zoomOffset;
-
-            // Add a click listener to the map
-            map.setOnMapClickListener(this);
-
-            // Add a long-press listener to the map
-            map.setOnMapLongClickListener(this);
-
-            // Add Marker click listener to the map
-            map.setOnMarkerClickListener(this);
-
-            // Add marker info window click listener
-            map.setOnInfoWindowClickListener(this);
-
-        } else {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
-        }
-
-		/* Create new location client. The first 'this' in args is the present
+        /* Create new location client. The first 'this' in args is the present
 		 * context; the next two 'this' args indicate that this class will handle
 		 * callbacks associated with connection and connection errors, respectively
 		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
@@ -147,20 +133,22 @@ public class MapMe extends FragmentActivity implements
 		 * services such as present position and location updates.
 		 */
 
-        locationClient = new GoogleApiClient.Builder(this)
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
 
+        //createLocationClient();
+
         // Create the LocationRequest object
-        locationRequest = LocationRequest.create();
+        mLocationRequest = LocationRequest.create();
         // Set request for high accuracy
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         // Set update interval
-        locationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
         // Set fastest update interval that we can accept
-        locationRequest.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 
         // Get a shared preferences
         prefs = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
@@ -172,9 +160,67 @@ public class MapMe extends FragmentActivity implements
 
     }
 
+    public void createLocationClient(){
+
+        // Create the LocationRequest object
+        mLocationRequest = LocationRequest.create();
+        // Set request for high accuracy
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Set update interval
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        // Set fastest update interval that we can accept
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+    }
+
+    public void checkForPermissions(){
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "checkForPermission: No permission. Requesting that user grant it.");
+            // Permission has not been granted by user previously.  Request it now.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+        } else {
+            Log.i(TAG, "checkForPermission: Permission has been granted");
+
+            // permission has been granted, continue as usual
+            //myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+            //createLocationClient();
+        }
+    }
+
+    // This callback is executed when the map is ready, passing in the map reference
+    // googleMap.
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         map = googleMap;
+
+        setupMap();
+        checkForPermissions();
+
+    }
+
+
+    public void setupMap(){
+
+        // Initialize type of map to normal
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        // Initialize 3D buildings enabled for map view
+        map.setBuildingsEnabled(false);
+
+        // Initialize whether indoor maps are shown if available
+        map.setIndoorEnabled(false);
+
+        // Initialize traffic overlay
+        map.setTrafficEnabled(false);
+
+        // Disable rotation gestures
+        map.getUiSettings().setRotateGesturesEnabled(false);
+
         // Set the initial zoom level of the map
         currentZoom = map.getMaxZoomLevel() - zoomOffset;
 
@@ -189,6 +235,7 @@ public class MapMe extends FragmentActivity implements
 
         // Add marker info window click listener
         map.setOnInfoWindowClickListener(this);
+
     }
 
     // Following two methods display and handle the top bar options menu for maps
@@ -200,71 +247,7 @@ public class MapMe extends FragmentActivity implements
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (map == null) {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        // Handle item selection
-        switch (item.getItemId()) {
-
-            // Toggle traffic overlay
-            case R.id.traffic_mapme:
-                map.setTrafficEnabled(!map.isTrafficEnabled());
-                return true;
-
-            // Toggle satellite overlay
-            case R.id.satellite_mapme:
-                int mt = map.getMapType();
-                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
-                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                } else {
-                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                }
-                return true;
-
-            // Toggle 3D building display
-            case R.id.building_mapme:
-                map.setBuildingsEnabled(!map.isBuildingsEnabled());
-                // Change camera tilt to view from angle if 3D
-                if (map.isBuildingsEnabled()) {
-                    changeCamera(map, map.getCameraPosition().target, currentZoom,
-                            map.getCameraPosition().bearing, 45, true);
-                } else {
-                    changeCamera(map, map.getCameraPosition().target, currentZoom,
-                            map.getCameraPosition().bearing, 0, true);
-                }
-                return true;
-
-            // Toggle whether indoor maps displayed
-            case R.id.indoor_mapme:
-                map.setIndoorEnabled(!map.isIndoorEnabled());
-                return true;
-
-            // Toggle tracking enabled
-            case R.id.track_mapme:
-                if (locationClient != null) {
-                    if (locationClient.isConnected()) {
-                        stopTracking();
-                    } else {
-                        startTracking();
-                    }
-                }
-                return true;
-            // Settings page
-            case R.id.action_settings:
-                Intent j = new Intent(this, Settings.class);
-                startActivity(j);
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     // Save the current zoom level when going into the background
 
@@ -278,7 +261,7 @@ public class MapMe extends FragmentActivity implements
             prefsEditor.commit();
         }
         super.onPause();
-        Log.i(TAG, "onPause: Zoom=" + currentZoom);
+        Log.i(TAG, "onPause: Zoom=" + currentZoom+" maxMapZoom="+map.getMaxZoomLevel());
     }
 
     @Override
@@ -291,6 +274,7 @@ public class MapMe extends FragmentActivity implements
         if (prefs.contains("KEY_ZOOM") && map != null) {
             currentZoom = prefs.getFloat("KEY_ZOOM", map.getMaxZoomLevel());
         }
+
         Log.i(TAG, "onResume: Zoom=" + currentZoom);
 
         // Keep screen on while this map location tracking activity is running
@@ -308,7 +292,8 @@ public class MapMe extends FragmentActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        locationClient.connect();
+        if(mGoogleApiClient != null) mGoogleApiClient.connect();
+        Log.i(TAG, "onStart");
     }
 
     // Called by system when Activity is no longer visible, so disconnect location
@@ -317,11 +302,12 @@ public class MapMe extends FragmentActivity implements
     @Override
     protected void onStop() {
 
+        Log.i(TAG, "onStop");
         // If the client is connected, remove location updates and disconnect
-        if (locationClient.isConnected()) {
-            locationClient.disconnect();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
         }
-        locationClient.disconnect();
+        mGoogleApiClient.disconnect();
 
         // Turn off the screen-always-on request
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -333,41 +319,22 @@ public class MapMe extends FragmentActivity implements
     // connection errors, respectively.
 
 
-	/* Called by Location Services when the request to connect the
-	 * client finishes successfully. At this point, you can
-	 * request current location or begin periodic location updates.
-	 */
+	/* Called by Location Services when the request to connect the client finishes successfully.
+	At this point, you can request current location or begin periodic location updates. */
 
     @Override
     public void onConnected(Bundle dataBundle) {
+
+        Log.i(TAG, "onConnected");
 
         // Indicate that a connection has been established
         Toast.makeText(this, getString(R.string.connected_toast),
                 Toast.LENGTH_SHORT).show();
 
-        locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(1000); // Update location every second
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                locationClient, locationRequest, this);
-
-        currentLocation = LocationServices.FusedLocationApi.getLastLocation(locationClient); //locationClient.getLastLocation();
-        currentLat = currentLocation.getLatitude();
-        currentLon = currentLocation.getLongitude();
+        initializeLocation();
 
         // Center map on current location
-        map_center = new LatLng(currentLat, currentLon);
+        map_center = new LatLng(myLat, myLon);
 
         if (map != null) {
             initializeMap();
@@ -379,9 +346,41 @@ public class MapMe extends FragmentActivity implements
         // Start periodic updates.  This version of requestLocationUpdates is
         // suitable for foreground activities when connected to a LocationClient.
         // The second argument is the LocationListener, which is "this" since the
-        // present class implements the LocationListener interface.
+        // present class implements the LocationListener interface and hence
+        // inherits its properties.
 
-        //locationClient.requestLocationUpdates(locationRequest, this);
+        //mGoogleApiClient.requestLocationUpdates(mLocationRequest, this);
+
+    }
+
+    public void initializeLocation(){
+
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+
+        myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        //mGoogleApiClient.getLastLocation();
+        myLat = myLocation.getLatitude();
+        myLon = myLocation.getLongitude();
+
+        // Works if zoom hardwired as follows, but has wrong zoom level if
+        // currentZoom variable is used. However, Does not show dot for location
+
+        map.setMyLocationEnabled(true);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLat,myLon), 15));
+
     }
 
     @Override
@@ -435,7 +434,10 @@ public class MapMe extends FragmentActivity implements
     private void initializeMap() {
 
         // Enable or disable current location
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -450,35 +452,22 @@ public class MapMe extends FragmentActivity implements
         // Move camera view and zoom to location
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center,currentZoom));
 
-        // Initialize type of map to normal
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-        // Initialize 3D buildings enabled for map view
-        map.setBuildingsEnabled(false);
-
-        // Initialize whether indoor maps are shown if available
-        map.setIndoorEnabled(false);
-
-        // Initialize traffic overlay
-        map.setTrafficEnabled(false);
-
-        // Disable rotation gestures
-        map.getUiSettings().setRotateGesturesEnabled(false);
     }
+
 
     // Starts location tracking
     private void startTracking(){
-        locationClient.connect();
+        mGoogleApiClient.connect();
         Toast.makeText(this, "Location tracking started", Toast.LENGTH_SHORT).show();
 
     }
 
     // Stops location tracking
     private void stopTracking(){
-        if (locationClient.isConnected()) {
-            locationClient.disconnect();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
         }
-        locationClient.disconnect();
+
         Toast.makeText(this, "Location tracking halted", Toast.LENGTH_SHORT).show();
     }
 
@@ -745,6 +734,8 @@ public class MapMe extends FragmentActivity implements
 
         String title = reverseGeocodeLocation(latlng.latitude, latlng.longitude);
 
+        Log.i(TAG,"Reverse geocode="+title);
+
         String snippet="Tap marker to delete; tap window for Street View";
 
         // Add an orange marker on map at position of tap (default marker color is red).
@@ -827,5 +818,116 @@ public class MapMe extends FragmentActivity implements
         startActivity(streetView);
     }
 
+    /*Following method invoked by the system after the user response to a runtime permission request
+     (Android 6, API 23 and beyond implement such runtime permissions). The system passes to this
+     method the user's response, which you then should act upon in this method.  This method can respond
+     to more than one type permission.  The variable requestCode distinguishes which permission is being
+     processed. */
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        Log.i(TAG, "Permission result: requestCode=" + requestCode);
+
+        switch(requestCode){
+
+            // The permission response was for fine location
+            case REQUEST_LOCATION :
+
+                // If the request was canceled by user, the results arrays are empty
+                if(grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+                    Log.i(TAG, "onRequestPermissions: permission granted");
+
+                    // Permission was granted. Do the location task that triggered permission request
+
+                    if(mGoogleApiClient == null) {
+                        Log.i(TAG, "onRequestPermissionsResults:  GoogleApiClient is null");
+
+                    } else {
+                        Log.i(TAG, "OnRequestPermissionsResult: mGoogleApiClient connected="
+                        + mGoogleApiClient.isConnected());
+                    }
+
+                    initializeLocation();
+
+                } else {
+                    Log.i(TAG, "OnRequestPermissionsResult: User refused to give permission");
+
+                    // The permission was denied.  Disable functionality depending on the permission.
+
+//                    showTaskDialog("Warning!", "This app will not function without this permission!",
+//                            launcherIcon, this, "Refuse Permission", "Give Permission");
+
+                }
+                break;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (map == null) {
+            Toast.makeText(this, getString(R.string.nomap_error),
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        // Handle item selection
+        switch (item.getItemId()) {
+
+            // Toggle traffic overlay
+            case R.id.traffic_mapme:
+                map.setTrafficEnabled(!map.isTrafficEnabled());
+                return true;
+
+            // Toggle satellite overlay
+            case R.id.satellite_mapme:
+                int mt = map.getMapType();
+                if (mt == GoogleMap.MAP_TYPE_NORMAL) {
+                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                } else {
+                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }
+                return true;
+
+            // Toggle 3D building display
+            case R.id.building_mapme:
+                map.setBuildingsEnabled(!map.isBuildingsEnabled());
+                // Change camera tilt to view from angle if 3D
+                if (map.isBuildingsEnabled()) {
+                    changeCamera(map, map.getCameraPosition().target, currentZoom,
+                            map.getCameraPosition().bearing, 45, true);
+                } else {
+                    changeCamera(map, map.getCameraPosition().target, currentZoom,
+                            map.getCameraPosition().bearing, 0, true);
+                }
+                return true;
+
+            // Toggle whether indoor maps displayed
+            case R.id.indoor_mapme:
+                map.setIndoorEnabled(!map.isIndoorEnabled());
+                return true;
+
+            // Toggle tracking enabled
+            case R.id.track_mapme:
+                if (mGoogleApiClient != null) {
+                    if (mGoogleApiClient.isConnected()) {
+                        stopTracking();
+                    } else {
+                        startTracking();
+                    }
+                }
+                return true;
+            // Settings page
+            case R.id.action_settings:
+                Intent j = new Intent(this, Settings.class);
+                startActivity(j);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

@@ -1,8 +1,12 @@
 package com.lightcone.mapexample;
 
 import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.graphics.LightingColorFilter;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -12,6 +16,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.Manifest;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -19,9 +24,11 @@ import java.util.List;
 import android.location.Address;
 import android.location.Geocoder;
 
-public class MainActivity extends AppCompatActivity implements android.view.View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements
+        android.view.View.OnClickListener {
 
     static final String TAG = "Mapper";
+    final private int REQUEST_LOCATION = 2;
     private double lon;
     private double lat;
     private EditText placeText;
@@ -35,7 +42,15 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Set up Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar2);
+        // Remove default toolbar title and replace with an icon
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.mipmap.ic_launcher);
+        }
+        // Note: getColor(color) deprecated as of API 23
+        toolbar.setTitleTextColor(getResources().getColor(R.color.barTextColor));
+        toolbar.setTitle("Map Example");
         setSupportActionBar(toolbar);
 
         geocodeField = (EditText) findViewById(R.id.geocode_input);
@@ -54,17 +69,36 @@ public class MainActivity extends AppCompatActivity implements android.view.View
         View sixthButton = findViewById(R.id.mapme_button);
         sixthButton.setOnClickListener(this);
 
-        // This prevents my Nexus 7 running Android 4.4.2 from opening
+        // Color the buttons with our color theme.  Note that
+        // getColor(color) is deprecated as of API 23, but we use it for
+        // compatibility with earlier versions.  PorterDuff.Mode.MULTIPLY multiplies
+        // the current button color value by the specified color.
+
+        firstButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+        secondButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+        thirdButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+        fourthButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+        fifthButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+        sixthButton.getBackground().setColorFilter
+                (getResources().getColor(R.color.buttonColor), PorterDuff.Mode.MULTIPLY);
+
+        // Following prevents some devices (for example, Nexus 7 running Android 4.4.2) from opening
         // the soft keyboard when the app is launched rather than when
         // an input field is selected.
 
         this.getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to action bar if present.
+        // Inflate the menu; this adds items to tool bar.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -188,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements android.view.View
             if(Geocoder.isPresent()){
                 results = gcoder.getFromLocationName(placeName,numberOptions);
             } else {
-                Log.i(TAG,"No geocoder accessible on this platform");
+                Log.i(TAG,"No geocoder found");
                 return;
             }
             Iterator<Address> locations = results.iterator();
@@ -220,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements android.view.View
             Log.i(TAG,"lat="+lat+" lon="+lon);
 
         } catch (IOException e){
-            Log.e(TAG, "I/O Failure; is network available?",e);
+            Log.e(TAG, "I/O Failure; are you connected to a network?",e);
         }
     }
 }
