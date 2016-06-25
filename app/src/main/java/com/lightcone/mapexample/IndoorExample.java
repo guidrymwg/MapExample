@@ -2,13 +2,13 @@ package com.lightcone.mapexample;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -26,7 +26,7 @@ import android.widget.Toast;
  * Airport.
 */
 
-public class IndoorExample extends AppCompatActivity {
+public class IndoorExample extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap map;
     private LatLng honolulu_airport = new LatLng(21.332, -157.92);
@@ -46,16 +46,12 @@ public class IndoorExample extends AppCompatActivity {
         toolbar.setTitle("Indoor Maps");
         setSupportActionBar(toolbar);
 
-        // Get a handle to the Map Fragment
-        map = ((MapFragment) getFragmentManager()
-                .findFragmentById(R.id.indoor_map)).getMap();
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used
+        // in onMapReady().
 
-        if(map != null){
-            initializeMap();
-        } else {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
-        }
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.indoor_map);
+        mapFragment.getMapAsync(this);
 
     }
 
@@ -123,9 +119,6 @@ public class IndoorExample extends AppCompatActivity {
 
     private void initializeMap(){
 
-        // Enable or disable current location
-        //map.setMyLocationEnabled(false);
-
         // Move camera view and zoom to location
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(honolulu_airport, 18));
 
@@ -170,4 +163,9 @@ public class IndoorExample extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        initializeMap();
+    }
 }

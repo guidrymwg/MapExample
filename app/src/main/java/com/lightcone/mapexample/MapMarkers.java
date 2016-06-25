@@ -53,7 +53,9 @@ public class MapMarkers extends AppCompatActivity implements
         toolbar.setTitle("Map Example");
         setSupportActionBar(toolbar);
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used
+        // in onMapReady().
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.markers_map);
         mapFragment.getMapAsync(this);
