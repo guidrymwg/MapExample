@@ -61,9 +61,9 @@ public class MapMe extends AppCompatActivity implements
         GoogleMap.OnInfoWindowClickListener {
 
     // Update interval in milliseconds for location services
-    private static final long UPDATE_INTERVAL = 10000;
+    private static final long UPDATE_INTERVAL = 5000;
     // Fastest update interval in milliseconds for location services
-    private static final long FASTEST_INTERVAL = 5000;
+    private static final long FASTEST_INTERVAL = 500;
     // Google Play diagnostics constant
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     // Speed threshold for orienting map in direction of motion (m/s)
