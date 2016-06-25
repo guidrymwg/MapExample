@@ -5,7 +5,7 @@
     <color name="barTextColor">#ffffff</color>color>
     <!--<color name="buttonColor">@color/primary_light</color>-->  <!-- Tint with a palette color-->
     <color name="buttonColor">#dedede</color>  <!-- Tint with very light gray-->
-    <color name="dialogBackground">#ffffff</color>
+    <color name="dialogBackground">#eeeeee</color>
 
     <!-- Choose one of the following palettes and leave the rest commented out -->
 

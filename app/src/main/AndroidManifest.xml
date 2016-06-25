@@ -52,8 +52,8 @@
         <activity android:name=".ShowMap" android:label="Show Map"> </activity>
         <activity android:name=".RouteMapper" android:label=""></activity>
         <activity android:name=".MapMe" android:label="Map Me"></activity>
-        <activity android:name=".Help" android:label="Help" android:theme="@android:style/Theme.Holo.Light.Dialog"> </activity>
-        <activity android:name=".Settings" android:label="Settings" android:theme="@android:style/Theme.Holo.Light.Dialog"> </activity>
+        <activity android:name=".Help" android:label="Help" android:theme="@style/MyDialogTheme"> </activity>
+        <activity android:name=".Settings" android:label="Settings" android:theme="@style/MyDialogTheme"> </activity>
     </application>
 
 </manifest>
