@@ -159,10 +159,8 @@ public class RouteMapper extends AppCompatActivity implements
         super.onResume();
     }
 
-	/* The following two lifecycle methods conserve resources by ensuring that
-	 * location services are connected when the map is visible and disconnected when
-	 * it is not.
-	 */
+	/* The following two lifecycle methods conserve resources by ensuring that location
+	 * services are connected when the map is visible and disconnected when not. */
 
     // Called by system when Activity becomes visible, so connect location client.
 
@@ -187,20 +185,17 @@ public class RouteMapper extends AppCompatActivity implements
 
 	/* Called by Location Services when the request to connect the
 	 * client finishes successfully. At this point, you can
-	 * request current location or begin periodic location updates.
-	 */
+	 * request current location or begin periodic location updates. */
 
     @Override
     public void onConnected(Bundle dataBundle) {
 
         // Display the connection status
-        Toast.makeText(this, getString(R.string.connected_toast),
-                Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.connected_toast), Toast.LENGTH_SHORT).show();
         if (map != null) {
             initializeMap();
         } else {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
         }
 
     }
@@ -215,20 +210,17 @@ public class RouteMapper extends AppCompatActivity implements
     //@Override
     public void onDisconnected() {
         // Display the connection status
-        Toast.makeText(this, getString(R.string.disconnected_toast),
-                Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.disconnected_toast), Toast.LENGTH_SHORT).show();
     }
 
-    // Called by Location Services if the attempt to connect to
-    // Location Services fails.
+    // Called by Location Services if the attempt to connect to Location Services fails.
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
 		/* Google Play services can resolve some errors it detects.
 		 * If the error has a resolution, try sending an Intent to
-		 * start a Google Play services activity that can resolve the error.
-		 */
+		 * start a Google Play services activity that can resolve the error. */
 
         if (connectionResult.hasResolution()) {
             try {
@@ -255,19 +247,6 @@ public class RouteMapper extends AppCompatActivity implements
     // Method to initialize the map.
 
     private void initializeMap() {
-
-/*        // Enable or disable current location
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }*/
-        //map.setMyLocationEnabled(false);
 
         // Move camera view and zoom to location
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center,
@@ -561,7 +540,6 @@ public class RouteMapper extends AppCompatActivity implements
 
         double lat = latlng.latitude;
         double lon = latlng.longitude;
-        Log.i(TAG, "Longclick, lat="+lat+" lon="+lon);
 
         // Launch a StreetView on current location
         showStreetView(lat,lon);
@@ -571,15 +549,15 @@ public class RouteMapper extends AppCompatActivity implements
     /* Open a Street View, if available.
 	 * The user will have the choice of getting the Street View
 	 * in a browser, or with the StreetView app if it is installed.
-	 * If no Street View exists for a given location, this will present
-	 * a blank page.
-	 */
+	 * If no Street View exists for a given location, this will present a blank page. */
 
     private void showStreetView(double lat, double lon ){
         String uriString = "google.streetview:cbll="+lat+","+lon;
         Intent streetView = new Intent(android.content.Intent.ACTION_VIEW,Uri.parse(uriString));
         startActivity(streetView);
     }
+
+    // Handle clicks on toolbar menus
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -623,8 +601,6 @@ public class RouteMapper extends AppCompatActivity implements
                 return super.onOptionsItemSelected(item);
         }
     }
-
-
 
 
 	/* Inner class to implement single task on background thread without having to manage

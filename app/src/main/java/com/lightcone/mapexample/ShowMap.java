@@ -93,8 +93,7 @@ public class ShowMap extends AppCompatActivity implements
 		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
 		 * You cannot use the location client until the onConnected callback
 		 * fires, indicating a valid connection.  At that point you can access location
-		 * services such as present position and location updates.
-		 */
+		 * services such as present position and location updates. */
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -158,8 +157,7 @@ public class ShowMap extends AppCompatActivity implements
      runtime (in addition to declaring it in the manifest file).  The following code checks
      for this permission.  If it has already been granted, it proceeds as normal.  If it
      has not yet been granted by the user, the user is presented with an opportunity to grant
-     it. In general, the rest of this class will not execute until the user has granted such
-     permission.*/
+     it. In general, the rest of this class will not execute until the user has granted such permission. */
 
     private void initializeLocation() {
 
@@ -180,12 +178,6 @@ public class ShowMap extends AppCompatActivity implements
             Log.i(TAG, "Permission has been granted");
 
             myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            Log.i(TAG, "Location enabled.  Requested lat=" + map_center.latitude
-                    + " Requested lon=" + map_center.longitude);
-
-            if (myLocation != null)
-                Log.i(TAG, "My location: Latitude=" + myLocation.getLatitude() + "  Longitude="
-                        + myLocation.getLongitude());
 
         }
     }
@@ -200,8 +192,6 @@ public class ShowMap extends AppCompatActivity implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-
-        Log.i(TAG, "onRequestPermissionsResult - Permission result: requestCode=" + requestCode);
 
         // Since this method may handle more than one type of permission, distinguish which one by a
         // switch on the requestCode passed back to you by the system.
@@ -221,8 +211,7 @@ public class ShowMap extends AppCompatActivity implements
                     initializeLocation();
 
                 } else {
-                    Log.i(TAG, "onRequestPermissionsResult - permission denied: requestCode="
-                            + requestCode);
+                    Log.i(TAG, "onRequestPermissionsResult - permission denied: requestCode=" + requestCode);
 
                     // The permission was denied.  Warn the user of the consequences and give
                     // them one last time to enable the permission.
@@ -310,9 +299,7 @@ public class ShowMap extends AppCompatActivity implements
 
         myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        if(myLocation == null)Toast.makeText(this, "myLocation null",
-                    Toast.LENGTH_LONG).show();
-
+        if(myLocation == null)Toast.makeText(this, "myLocation null", Toast.LENGTH_LONG).show();
 
         if (trk) {
             startLocationUpdates();
@@ -321,10 +308,6 @@ public class ShowMap extends AppCompatActivity implements
 
     protected void startLocationUpdates() {
 
-        // See https://developer.android.com/training/location/receive-location-updates.html
-
-//        LocationServices.FusedLocationApi.requestLocationUpdates(
-//                mGoogleApiClient, mLocationRequest, this);
     }
 
     @Override
@@ -356,9 +339,7 @@ public class ShowMap extends AppCompatActivity implements
      * the same class.  The programmer should switch on id in the response methods
      * positiveTask(id) and negativeTask(id) to decide which alert dialog to respond to.
      * This version of AlertDialog.Builder allows a theme to be specified. Removing the theme
-     * argument from the AlertDialog.Builder below will cause the default dialog theme to be
-     * used.
-     */
+     * argument from the AlertDialog.Builder below will cause the default dialog theme to be used. */
 
     private void showTaskDialog(int id, String title, String message, int icon, Context context,
                                 String positiveButtonText, String negativeButtonText){
@@ -385,7 +366,7 @@ public class ShowMap extends AppCompatActivity implements
         dialog.show();
     }
 
-    // Method to execute if user chooses negative button.
+    // Method to be executed if user chooses negative button.
 
     private void negativeTask(int id){
 
@@ -410,9 +391,8 @@ public class ShowMap extends AppCompatActivity implements
 
     }
 
-    // Method to execute if user chooses positive button ("OK, I'll Do It" in this case).
-    // This starts the map initialization, which will present the location permissions
-    // dialog again.
+    // Method to execute if user chooses positive button ("OK, I'll Do It"). This starts the map
+    // initialization, which will present the location permissions dialog again.
 
     private void positiveTask(int id){
 
@@ -435,6 +415,56 @@ public class ShowMap extends AppCompatActivity implements
         // Inflate the menu; this adds items to the tool bar if it is present.
         getMenuInflater().inflate(R.menu.showmap_menu, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latlng) {
+        double lat = latlng.latitude;
+        double lon = latlng.longitude;
+
+        // Launch a StreetView on current location
+        showStreetView(lat,lon);
+    }
+
+    /* Open a Street View, if available. The user will have the choice of getting the Street View
+	 * in a browser, or with the StreetView app if it is installed. If no Street View exists
+	 * for a given location, this will present a blank page.
+	 */
+
+    private void showStreetView(double lat, double lon ){
+        String uriString = "google.streetview:cbll="+lat+","+lon;
+        Intent streetView = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uriString));
+        startActivity(streetView);
+    }
+
+    /* The following two lifecycle methods conserve resources by ensuring that location services
+    are connected when the map is visible and disconnected when it is not.
+	 */
+
+    // Called by system when Activity becomes visible, so connect location client.
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(mGoogleApiClient != null) mGoogleApiClient.connect();
+    }
+
+    // Called by system when Activity is no longer visible, so disconnect location
+    // client, which invalidates it.
+
+    @Override
+    protected void onStop() {
+
+        // If the client is connected, remove location updates and disconnect
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+        mGoogleApiClient.disconnect();
+
+        // Turn off the screen-always-on request
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        super.onStop();
     }
 
     // Deal with selections in the options menu
@@ -490,55 +520,5 @@ public class ShowMap extends AppCompatActivity implements
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public void onMapLongClick(LatLng latlng) {
-        double lat = latlng.latitude;
-        double lon = latlng.longitude;
-
-        // Launch a StreetView on current location
-        showStreetView(lat,lon);
-    }
-
-    /* Open a Street View, if available. The user will have the choice of getting the Street View
-	 * in a browser, or with the StreetView app if it is installed. If no Street View exists
-	 * for a given location, this will present a blank page.
-	 */
-
-    private void showStreetView(double lat, double lon ){
-        String uriString = "google.streetview:cbll="+lat+","+lon;
-        Intent streetView = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(uriString));
-        startActivity(streetView);
-    }
-
-    /* The following two lifecycle methods conserve resources by ensuring that location services
-    are connected when the map is visible and disconnected when it is not.
-	 */
-
-    // Called by system when Activity becomes visible, so connect location client.
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(mGoogleApiClient != null) mGoogleApiClient.connect();
-    }
-
-    // Called by system when Activity is no longer visible, so disconnect location
-    // client, which invalidates it.
-
-    @Override
-    protected void onStop() {
-
-        // If the client is connected, remove location updates and disconnect
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
-        mGoogleApiClient.disconnect();
-
-        // Turn off the screen-always-on request
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        super.onStop();
     }
 }

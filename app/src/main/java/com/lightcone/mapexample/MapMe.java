@@ -68,6 +68,12 @@ public class MapMe extends AppCompatActivity implements
     private static final double SPEED_THRESH = 1;
 
     private static final String TAG = "Mapper";
+
+    // User defines value of REQUEST_LOCATION. It will identify a permission request
+    // specifically for ACCESS_FINE_LOCATION.  Define a different integer for each
+    // "dangerous" permission that you will request at runtime (in this example there
+    // is only one).
+
     final private int REQUEST_LOCATION = 2;
     private GoogleApiClient mGoogleApiClient;
     //private LocationRequest mLocationRequest;
