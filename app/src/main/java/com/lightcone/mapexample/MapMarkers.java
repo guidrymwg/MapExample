@@ -69,50 +69,44 @@ public class MapMarkers extends AppCompatActivity implements
         return true;
     }
 
+
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            // Toggle traffic overlay
-            case R.id.traffic:
-                map.setTrafficEnabled(!map.isTrafficEnabled());
-                return true;
-            // Toggle satellite overlay
-            case R.id.satellite:
-                final int mt = map.getMapType();
-                if(mt == GoogleMap.MAP_TYPE_NORMAL){
-                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                } else {
-                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                }
-                return true;
-            // Toggle 3D building display (best when showing map instead of satellite)
-            case R.id.building:
-                map.setBuildingsEnabled(!map.isBuildingsEnabled());
-                // Change camera tilt to view from angle if 3D
-                if(map.isBuildingsEnabled()){
-                    changeCamera(map, map.getCameraPosition().target,
-                            map.getCameraPosition().zoom,
-                            map.getCameraPosition().bearing, 45);
-                } else {
-                    changeCamera(map, map.getCameraPosition().target,
-                            map.getCameraPosition().zoom,
-                            map.getCameraPosition().bearing, 0);
-                }
-                return true;
-            // Toggle whether indoor maps displayed
-            case R.id.indoor:
-                map.setIndoorEnabled(!map.isIndoorEnabled());
-                return true;
-            // Settings page
-            case R.id.action_settings:
-                // Actions for settings page
-                final Intent j = new Intent(this, Settings.class);
-                startActivity(j);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        initializeMap();
+    }
+
+    // Method to initialize the map
+
+    private void initializeMap(){
+
+        // Move camera view and zoom to location
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, 13));
+
+        // Initialize type of map
+        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        // Initialize 3D buildings enabled for map view
+        map.setBuildingsEnabled(false);
+
+        // Initialize whether indoor maps are shown if available
+        map.setIndoorEnabled(false);
+
+        // Initialize traffic overlay
+        map.setTrafficEnabled(false);
+
+        // Enable rotation gestures
+        map.getUiSettings().setRotateGesturesEnabled(true);
+
+        // Enable zoom controls on map [in addition to gesture controls like spread or double-
+        // tap with 1 finger (to zoom in), and pinch or double-tap with two fingers (to zoom out)].
+
+        map.getUiSettings().setZoomControlsEnabled(true);
+
+        addMapMarkers();
+
+        // Add marker info window click listener
+        map.setOnInfoWindowClickListener(this);
     }
 
     // Method to animate camera properties change
@@ -171,46 +165,6 @@ public class MapMarkers extends AppCompatActivity implements
 
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        Log.i(TAG, "map ready");
-        map = googleMap;
-        initializeMap();
-    }
-
-    // Method to initialize the map
-
-    private void initializeMap(){
-
-        // Move camera view and zoom to location
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center, 13));
-
-        // Initialize type of map
-        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-        // Initialize 3D buildings enabled for map view
-        map.setBuildingsEnabled(false);
-
-        // Initialize whether indoor maps are shown if available
-        map.setIndoorEnabled(false);
-
-        // Initialize traffic overlay
-        map.setTrafficEnabled(false);
-
-        // Enable rotation gestures
-        map.getUiSettings().setRotateGesturesEnabled(true);
-
-        // Enable zoom controls on map [in addition to gesture controls like spread or double-
-        // tap with 1 finger (to zoom in), and pinch or double-tap with two fingers (to zoom out)].
-
-        map.getUiSettings().setZoomControlsEnabled(true);
-
-        addMapMarkers();
-
-        // Add marker info window click listener
-        map.setOnInfoWindowClickListener(this);
-    }
-
     // Method to add map markers. See
     //     http://developer.android.com/reference/com/google/android/gms/maps/model
     //      /BitmapDescriptorFactory.html
@@ -241,5 +195,53 @@ public class MapMarkers extends AppCompatActivity implements
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
         );
 
+    }
+
+    // Handle menu clicks in toolbar
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            // Toggle traffic overlay
+            case R.id.traffic:
+                map.setTrafficEnabled(!map.isTrafficEnabled());
+                return true;
+            // Toggle satellite overlay
+            case R.id.satellite:
+                final int mt = map.getMapType();
+                if(mt == GoogleMap.MAP_TYPE_NORMAL){
+                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                } else {
+                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }
+                return true;
+            // Toggle 3D building display (best when showing map instead of satellite)
+            case R.id.building:
+                map.setBuildingsEnabled(!map.isBuildingsEnabled());
+                // Change camera tilt to view from angle if 3D
+                if(map.isBuildingsEnabled()){
+                    changeCamera(map, map.getCameraPosition().target,
+                            map.getCameraPosition().zoom,
+                            map.getCameraPosition().bearing, 45);
+                } else {
+                    changeCamera(map, map.getCameraPosition().target,
+                            map.getCameraPosition().zoom,
+                            map.getCameraPosition().bearing, 0);
+                }
+                return true;
+            // Toggle whether indoor maps displayed
+            case R.id.indoor:
+                map.setIndoorEnabled(!map.isIndoorEnabled());
+                return true;
+            // Settings page
+            case R.id.action_settings:
+                // Actions for settings page
+                final Intent j = new Intent(this, Settings.class);
+                startActivity(j);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

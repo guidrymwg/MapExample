@@ -63,56 +63,9 @@ public class IndoorExample extends AppCompatActivity implements OnMapReadyCallba
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        if(map == null) {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
-            return false;
-        }
-
-        // Handle item selection
-        switch (item.getItemId()) {
-            // Toggle traffic overlay
-            case R.id.traffic:
-                map.setTrafficEnabled(!map.isTrafficEnabled());
-                return true;
-            // Toggle satellite overlay
-            case R.id.satellite:
-                int mt = map.getMapType();
-                if(mt == GoogleMap.MAP_TYPE_NORMAL){
-                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                } else {
-                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                }
-                return true;
-            // Toggle 3D building display
-            case R.id.building:
-                map.setBuildingsEnabled(!map.isBuildingsEnabled());
-                // Change camera tilt to view from angle if 3D
-                if(map.isBuildingsEnabled()){
-                    changeCamera(map, map.getCameraPosition().target,
-                            map.getCameraPosition().zoom,
-                            map.getCameraPosition().bearing, 45);
-                } else {
-                    changeCamera(map, map.getCameraPosition().target,
-                            map.getCameraPosition().zoom,
-                            map.getCameraPosition().bearing, 0);
-                }
-                return true;
-            // Toggle whether indoor maps displayed
-            case R.id.indoor:
-                map.setIndoorEnabled(!map.isIndoorEnabled());
-                return true;
-            // Settings page
-            case R.id.action_settings:
-                // Actions for settings page
-                Intent j = new Intent(this, Settings.class);
-                startActivity(j);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        initializeMap();
     }
 
     // Method to initialize the map.  Check for map!=null before using.
@@ -163,9 +116,58 @@ public class IndoorExample extends AppCompatActivity implements OnMapReadyCallba
         }
     }
 
+
+    // Handle clicks on toolbar menus
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
-        initializeMap();
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(map == null) {
+            Toast.makeText(this, getString(R.string.nomap_error),
+                    Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        // Handle item selection
+        switch (item.getItemId()) {
+            // Toggle traffic overlay
+            case R.id.traffic:
+                map.setTrafficEnabled(!map.isTrafficEnabled());
+                return true;
+            // Toggle satellite overlay
+            case R.id.satellite:
+                int mt = map.getMapType();
+                if(mt == GoogleMap.MAP_TYPE_NORMAL){
+                    map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                } else {
+                    map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                }
+                return true;
+            // Toggle 3D building display
+            case R.id.building:
+                map.setBuildingsEnabled(!map.isBuildingsEnabled());
+                // Change camera tilt to view from angle if 3D
+                if(map.isBuildingsEnabled()){
+                    changeCamera(map, map.getCameraPosition().target,
+                            map.getCameraPosition().zoom,
+                            map.getCameraPosition().bearing, 45);
+                } else {
+                    changeCamera(map, map.getCameraPosition().target,
+                            map.getCameraPosition().zoom,
+                            map.getCameraPosition().bearing, 0);
+                }
+                return true;
+            // Toggle whether indoor maps displayed
+            case R.id.indoor:
+                map.setIndoorEnabled(!map.isIndoorEnabled());
+                return true;
+            // Settings page
+            case R.id.action_settings:
+                // Actions for settings page
+                Intent j = new Intent(this, Settings.class);
+                startActivity(j);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

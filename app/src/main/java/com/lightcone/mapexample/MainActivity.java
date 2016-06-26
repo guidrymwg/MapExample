@@ -129,8 +129,8 @@ public class MainActivity extends AppCompatActivity implements
     public void onClick(View v) {
 
         switch(v.getId()){
+
             case R.id.geocode_button:
-                Log.i(TAG,"Button 1 pushed");
 
                 // Test whether geocoder is present on platform
                 if(Geocoder.isPresent()){
@@ -154,7 +154,6 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case R.id.latlong_button:
-                Log.i(TAG,"Button 2 pushed");
 
                 // Read the latitude and longitude from the input fields
                 EditText latText = (EditText) findViewById(R.id.lat_input);
@@ -173,7 +172,6 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case R.id.honolulu_button:
-                Log.i(TAG,"Button 3 pushed");
                 Intent m = new Intent(this, MapMarkers.class);
                 startActivity(m);
                 break;
@@ -245,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements
                         +location.getAddressLine(1)+country+"\n";
                 opCount ++;
             }
+            // Log the returned data
             Log.i(TAG, raw);
             Log.i(TAG,"\nOptions:\n");
             for(int i=0; i<opCount; i++){
