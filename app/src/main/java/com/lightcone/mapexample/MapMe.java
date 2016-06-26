@@ -76,7 +76,7 @@ public class MapMe extends AppCompatActivity implements
     private double myLon;
     private GoogleMap map;
     private LatLng map_center;
-    private int zoomOffset = 5;
+    private int startZoom = 14;
     private float currentZoom;
     private float bearing;
     private float speed;
@@ -226,7 +226,8 @@ public class MapMe extends AppCompatActivity implements
         map.getUiSettings().setZoomControlsEnabled(true);
 
         // Set the initial zoom level of the map
-        currentZoom = map.getMaxZoomLevel() - zoomOffset;
+        currentZoom = startZoom;
+        Log.i(TAG, "Initial setting, currentZoom="+currentZoom);
 
         // Add a click listener to the map
         map.setOnMapClickListener(this);
@@ -260,12 +261,14 @@ public class MapMe extends AppCompatActivity implements
 
         // Store the current map zoom level
         if (map != null) {
-            currentZoom = map.getCameraPosition().zoom;
-            prefsEditor.putFloat("KEY_ZOOM", currentZoom);
-            prefsEditor.commit();
+            //currentZoom = map.getCameraPosition().zoom;
+             Log.i(TAG, "onPause, from camera currentZoom="+currentZoom);
+            //prefsEditor.putFloat("KEY_ZOOM", currentZoom);
+            //prefsEditor.commit();
+            //storeZoom(currentZoom);
+            Log.i(TAG, "onPause, in prefs currentZoom="+currentZoom);
         }
         super.onPause();
-        Log.i(TAG, "onPause: Zoom=" + currentZoom+" maxMapZoom="+map.getMaxZoomLevel());
     }
 
     @Override
@@ -279,7 +282,7 @@ public class MapMe extends AppCompatActivity implements
             currentZoom = prefs.getFloat("KEY_ZOOM", map.getMaxZoomLevel());
         }
 
-        Log.i(TAG, "onResume: Zoom=" + currentZoom);
+        Log.i(TAG, "onResume: currentZoom=" + currentZoom);
 
         // Keep screen on while this map location tracking activity is running
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -297,7 +300,7 @@ public class MapMe extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         if(mGoogleApiClient != null) mGoogleApiClient.connect();
-        Log.i(TAG, "onStart");
+        Log.i(TAG, "onStart, currentZoom = "+currentZoom);
     }
 
     // Called by system when Activity is no longer visible, so disconnect location
@@ -306,7 +309,12 @@ public class MapMe extends AppCompatActivity implements
     @Override
     protected void onStop() {
 
-        Log.i(TAG, "onStop");
+        if (map != null) {
+            currentZoom = map.getCameraPosition().zoom;
+            storeZoom(currentZoom);
+        }
+
+        Log.i(TAG, "onStop, currentZoom="+currentZoom);
         // If the client is connected, remove location updates and disconnect
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
@@ -383,8 +391,29 @@ public class MapMe extends AppCompatActivity implements
         // currentZoom variable is used. However, Does not show dot for location
 
         map.setMyLocationEnabled(true);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLat,myLon), 15));
+        Log.i(TAG, "initializeLocation, currentZoom="+currentZoom);
 
+        if (prefs.contains("KEY_ZOOM") && map != null) {
+            currentZoom = prefs.getFloat("KEY_ZOOM", map.getMaxZoomLevel());
+        }
+
+        //currentZoom = map.getCameraPosition().zoom;
+        Log.i(TAG, "initializeLocation, from camera currentZoom="+currentZoom);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLat,myLon), currentZoom));
+
+        storeZoom(currentZoom);
+
+        currentZoom = map.getCameraPosition().zoom;
+        Log.i(TAG, "initialLocation, from camera currentZoom="+currentZoom);
+
+    }
+
+    // Method to store current value of zoom in preferences
+
+    private void storeZoom(float zoom){
+            prefsEditor.putFloat("KEY_ZOOM", zoom);
+            prefsEditor.commit();
+        Log.i(TAG, "Prefs store zoom="+prefs.getFloat("KEY_ZOOM", 17));
     }
 
     @Override
@@ -588,12 +617,16 @@ public class MapMe extends AppCompatActivity implements
             }
         }
 
+        // Store zoom in Prefs
+        storeZoom(map.getCameraPosition().zoom);
+
         // Log some basic location information
         Log.i(TAG,"Lat="+formatDecimal(lat,"0.00000")
                 +" Lon="+formatDecimal(lon,"0.00000")
                 +" Bearing="+formatDecimal(bearing, "0.0")
                 +" deg Speed="+formatDecimal(speed, "0.0")+" m/s"
                 +" Accuracy="+formatDecimal(acc, "0.0")+" m"
+                +" Zoom="+map.getCameraPosition().zoom
                 +" Sats="+numberSatellites);
 
         if(map != null) {
@@ -853,6 +886,7 @@ public class MapMe extends AppCompatActivity implements
                         Log.i(TAG, "OnRequestPermissionsResult: mGoogleApiClient connected="
                         + mGoogleApiClient.isConnected());
                     }
+
 
                     initializeLocation();
 
