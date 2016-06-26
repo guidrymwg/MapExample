@@ -227,7 +227,6 @@ public class MapMe extends AppCompatActivity implements
 
         // Set the initial zoom level of the map
         currentZoom = startZoom;
-        Log.i(TAG, "Initial setting, currentZoom="+currentZoom);
 
         // Add a click listener to the map
         map.setOnMapClickListener(this);
@@ -253,21 +252,8 @@ public class MapMe extends AppCompatActivity implements
     }
 
 
-
-    // Save the current zoom level when going into the background
-
     @Override
     protected void onPause() {
-
-        // Store the current map zoom level
-        if (map != null) {
-            //currentZoom = map.getCameraPosition().zoom;
-             Log.i(TAG, "onPause, from camera currentZoom="+currentZoom);
-            //prefsEditor.putFloat("KEY_ZOOM", currentZoom);
-            //prefsEditor.commit();
-            //storeZoom(currentZoom);
-            Log.i(TAG, "onPause, in prefs currentZoom="+currentZoom);
-        }
         super.onPause();
     }
 
@@ -281,8 +267,6 @@ public class MapMe extends AppCompatActivity implements
         if (prefs.contains("KEY_ZOOM") && map != null) {
             currentZoom = prefs.getFloat("KEY_ZOOM", map.getMaxZoomLevel());
         }
-
-        Log.i(TAG, "onResume: currentZoom=" + currentZoom);
 
         // Keep screen on while this map location tracking activity is running
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -309,12 +293,12 @@ public class MapMe extends AppCompatActivity implements
     @Override
     protected void onStop() {
 
+        // Save the current zoom level for next session
         if (map != null) {
             currentZoom = map.getCameraPosition().zoom;
             storeZoom(currentZoom);
         }
 
-        Log.i(TAG, "onStop, currentZoom="+currentZoom);
         // If the client is connected, remove location updates and disconnect
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
@@ -337,8 +321,6 @@ public class MapMe extends AppCompatActivity implements
     @Override
     public void onConnected(Bundle dataBundle) {
 
-        Log.i(TAG, "onConnected");
-
         // Indicate that a connection has been established
         Toast.makeText(this, getString(R.string.connected_toast),
                 Toast.LENGTH_SHORT).show();
@@ -354,14 +336,6 @@ public class MapMe extends AppCompatActivity implements
             Toast.makeText(this, getString(R.string.nomap_error),
                     Toast.LENGTH_LONG).show();
         }
-
-        // Start periodic updates.  This version of requestLocationUpdates is
-        // suitable for foreground activities when connected to a LocationClient.
-        // The second argument is the LocationListener, which is "this" since the
-        // present class implements the LocationListener interface and hence
-        // inherits its properties.
-
-        //mGoogleApiClient.requestLocationUpdates(mLocationRequest, this);
 
     }
 
@@ -383,28 +357,15 @@ public class MapMe extends AppCompatActivity implements
                 mGoogleApiClient, mLocationRequest, this);
 
         myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        //mGoogleApiClient.getLastLocation();
         myLat = myLocation.getLatitude();
         myLon = myLocation.getLongitude();
-
-        // Works if zoom hardwired as follows, but has wrong zoom level if
-        // currentZoom variable is used. However, Does not show dot for location
-
         map.setMyLocationEnabled(true);
-        Log.i(TAG, "initializeLocation, currentZoom="+currentZoom);
 
         if (prefs.contains("KEY_ZOOM") && map != null) {
             currentZoom = prefs.getFloat("KEY_ZOOM", map.getMaxZoomLevel());
         }
 
-        //currentZoom = map.getCameraPosition().zoom;
-        Log.i(TAG, "initializeLocation, from camera currentZoom="+currentZoom);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLat,myLon), currentZoom));
-
-        storeZoom(currentZoom);
-
-        currentZoom = map.getCameraPosition().zoom;
-        Log.i(TAG, "initialLocation, from camera currentZoom="+currentZoom);
 
     }
 
@@ -413,7 +374,6 @@ public class MapMe extends AppCompatActivity implements
     private void storeZoom(float zoom){
             prefsEditor.putFloat("KEY_ZOOM", zoom);
             prefsEditor.commit();
-        Log.i(TAG, "Prefs store zoom="+prefs.getFloat("KEY_ZOOM", 17));
     }
 
     @Override
@@ -447,7 +407,6 @@ public class MapMe extends AppCompatActivity implements
                         this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
 
                 // Thrown if Google Play services canceled the original PendingIntent
-
             } catch (IntentSender.SendIntentException e) {
                 e.printStackTrace();
             }
@@ -462,7 +421,7 @@ public class MapMe extends AppCompatActivity implements
         // Create an error dialog display here
     }
 
-    // Method to initialize the map.  Check that map != null before calling.
+    // Method to initialize the map.
 
     private void initializeMap() {
 
@@ -471,28 +430,18 @@ public class MapMe extends AppCompatActivity implements
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        map.setMyLocationEnabled(true);
 
         // Move camera view and zoom to location
+        map.setMyLocationEnabled(true);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(map_center,currentZoom));
-
     }
-
 
     // Starts location tracking
     private void startTracking(){
         mGoogleApiClient.connect();
         Toast.makeText(this, "Location tracking started", Toast.LENGTH_SHORT).show();
-
     }
 
     // Stops location tracking
@@ -500,7 +449,6 @@ public class MapMe extends AppCompatActivity implements
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
-
         Toast.makeText(this, "Location tracking halted", Toast.LENGTH_SHORT).show();
     }
 
@@ -516,7 +464,6 @@ public class MapMe extends AppCompatActivity implements
 
     private void addMapMarker (double lat, double lon, float markerColor,
                                String title, String snippet){
-
         if(map != null){
             Marker marker = map.addMarker(new MarkerOptions()
                     .title(title)
@@ -530,7 +477,6 @@ public class MapMe extends AppCompatActivity implements
             Toast.makeText(this, getString(R.string.nomap_error),
                     Toast.LENGTH_LONG).show();
         }
-
     }
 
     // Decimal output formatting class that uses Java DecimalFormat. See
@@ -548,7 +494,6 @@ public class MapMe extends AppCompatActivity implements
         // DecimalFormat from NumberFormat.
 
         return df.format(number);
-
     }
 
 	/* Method to change properties of camera. If your GoogleMaps instance is called map,
@@ -563,7 +508,6 @@ public class MapMe extends AppCompatActivity implements
 	 * zoom, bearing, and tilt, respectively.  This permits changing only a subset of
 	 * the camera properties by passing the current values for all arguments you do not
 	 * wish to change.
-	 *
 	 * */
 
     private void changeCamera(GoogleMap map, LatLng center, float zoom,
@@ -585,7 +529,6 @@ public class MapMe extends AppCompatActivity implements
             map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
     }
-
 
     // Following callback associated with implementing LocationListener.
     // It fires when a location change is detected, passing in the new
@@ -615,7 +558,7 @@ public class MapMe extends AppCompatActivity implements
         // will allow detailed location provider information like number of satellites
         // and more. See
         // https://developer.android.com/reference/android/location/GnssStatus.html
-        // for documentation
+        // for documentation.
 
         int numberSatellites = -1;
         if(locationExtras != null){
@@ -730,14 +673,13 @@ public class MapMe extends AppCompatActivity implements
                 }
                 opCount ++;
             }
+            // Log the basic information returned
             Log.i(TAG, raw);
             Log.i(TAG,"\nOptions:\n");
             for(int i=0; i<opCount; i++){
                 Log.i(TAG,"("+(i+1)+") "+optionArray[i]);
             }
             Log.i(TAG,"lat="+lat+" lon="+lon);
-
-            //Toast.makeText(this, optionArray[0], Toast.LENGTH_LONG).show();
 
         } catch (IOException e){
             Log.e(TAG, "I/O Failure",e);
@@ -790,7 +732,6 @@ public class MapMe extends AppCompatActivity implements
         // Keep a reference to the returned circle so we can remove it later.
 
         localCircle = addCircle (lat, lon, acc, "#00000000", "#40ff9900");
-
     }
 
 
@@ -854,8 +795,7 @@ public class MapMe extends AppCompatActivity implements
 	 * The user will have the choice of getting the Street View
 	 * in a browser, or with the StreetView app if it is installed.
 	 * If no Street View exists for a given location, this will present
-	 * a blank page.
-	 */
+	 * a blank page. */
 
     private void showStreetView(double lat, double lon ){
         String uriString = "google.streetview:cbll="+lat+","+lon;
@@ -865,7 +805,7 @@ public class MapMe extends AppCompatActivity implements
 
     /*Following method invoked by the system after the user response to a runtime permission request
      (Android 6, API 23 and beyond implement such runtime permissions). The system passes to this
-     method the user's response, which you then should act upon in this method.  This method can respond
+     method the user's response, which is then acted upon in this method.  This method can respond
      to more than one type permission.  The variable requestCode distinguishes which permission is being
      processed. */
 
@@ -883,23 +823,10 @@ public class MapMe extends AppCompatActivity implements
                 if(grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED){
 
-                    Log.i(TAG, "onRequestPermissions: permission granted");
-
                     // Permission was granted. Do the location task that triggered permission request
-
-                    if(mGoogleApiClient == null) {
-                        Log.i(TAG, "onRequestPermissionsResults:  GoogleApiClient is null");
-
-                    } else {
-                        Log.i(TAG, "OnRequestPermissionsResult: mGoogleApiClient connected="
-                        + mGoogleApiClient.isConnected());
-                    }
-
-
                     initializeLocation();
 
                 } else {
-                    Log.i(TAG, "OnRequestPermissionsResult: User refused to give permission");
 
                     // The permission was denied.  Warn the user of the consequences and give
                     // them one last time to enable the permission.
@@ -907,11 +834,11 @@ public class MapMe extends AppCompatActivity implements
                     showTaskDialog(1, "Warning!",
                             "This part of the app will not function without this permission!",
                             dialogIcon, this, "OK, Do Over", "Refuse Permission");
-
                 }
                 break;
         }
     }
+
 
     /**
      * Method showTaskDialog() creates a custom alert dialog. This dialog presents text defining
@@ -923,9 +850,7 @@ public class MapMe extends AppCompatActivity implements
      * the same class.  The programmer should switch on id in the response methods
      * positiveTask(id) and negativeTask(id) to decide which alert dialog to respond to.
      * This version of AlertDialog.Builder allows a theme to be specified. Removing the theme
-     * argument from the AlertDialog.Builder below will cause the default dialog theme to be
-     * used.
-     */
+     * argument from AlertDialog.Builder below will cause the default dialog theme to be used. */
 
     private void showTaskDialog(int id, String title, String message, int icon, Context context,
                                 String positiveButtonText, String negativeButtonText){
@@ -952,11 +877,12 @@ public class MapMe extends AppCompatActivity implements
         dialog.show();
     }
 
-    // Method to execute if user chooses negative button.
+    // Method to be executed if user chooses negative button.
 
     private void negativeTask(int id){
 
-        // Use id to distinguish if more than one usage of the alert dialog
+        // Use id to distinguish if more than one usage of the showTaskDialog in same class
+
         switch(id) {
 
             case 1:
@@ -974,12 +900,10 @@ public class MapMe extends AppCompatActivity implements
                 startActivity(i);
                 break;
         }
-
     }
 
-    // Method to execute if user chooses positive button ("OK, I'll Do It" in this case).
-    // This starts the map initialization, which will present the location permissions
-    // dialog again.
+    // Method to execute if user chooses positive button ("OK, I'll Do It"). This starts the
+    // map initialization, which will present the location permissions dialog again.
 
     private void positiveTask(int id){
 
@@ -989,7 +913,6 @@ public class MapMe extends AppCompatActivity implements
             case 1:
                 // User agreed to enable so go back to permissions check
                 checkForPermissions();
-                //initializeLocation();
                 break;
 
             case 2:
@@ -998,6 +921,8 @@ public class MapMe extends AppCompatActivity implements
 
     }
 
+
+    // Handle events in the toolbar menu
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
