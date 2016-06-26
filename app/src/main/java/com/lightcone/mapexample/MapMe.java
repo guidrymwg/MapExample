@@ -608,7 +608,15 @@ public class MapMe extends AppCompatActivity implements
         // null before using this Bundle.
 
         Bundle locationExtras = newLocation.getExtras();
-        // If there is no satellite info, return -1 for number of satellites
+
+        // If there is no satellite info, return -1 for number of satellites.
+        // Note that the satellite info generally no longer works with current
+        // location providers.  Under Android 24 there will be a new class GnssStatus that
+        // will allow detailed location provider information like number of satellites
+        // and more. See
+        // https://developer.android.com/reference/android/location/GnssStatus.html
+        // for documentation
+
         int numberSatellites = -1;
         if(locationExtras != null){
             Log.i(TAG, "Extras:"+locationExtras.toString());
