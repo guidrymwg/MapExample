@@ -318,53 +318,52 @@ public class RouteMapper extends AppCompatActivity implements
 
         int lw = 16;
 
-            // Define the route as a line with multiple segments
-            route = new Polyline[numberRoutePoints];
-            PolylineOptions routeOptions;
+        // Define the route as a line with multiple segments
+        route = new Polyline[numberRoutePoints];
+        PolylineOptions routeOptions;
 
-            // Color legend for path slope.  Increasing values of the index
-            // indicate steeper paths
+        // Color legend for path slope.  Increasing values of the index
+        // indicate steeper paths
 
-            int[] slopeColor = new int[4];
-            slopeColor[0] = Color.parseColor("#cc5ea2c6");
-            slopeColor[1] = Color.parseColor("#ccebc05c");
-            slopeColor[2] = Color.parseColor("#ccbb6255");
-            slopeColor[3] = Color.parseColor("#ccd27451");
+        int[] slopeColor = new int[4];
+        slopeColor[0] = Color.parseColor("#cc5ea2c6");
+        slopeColor[1] = Color.parseColor("#ccebc05c");
+        slopeColor[2] = Color.parseColor("#ccbb6255");
+        slopeColor[3] = Color.parseColor("#ccd27451");
 
+        // Add each segment of the route to the map with appropriate color
+        for (int i = 0; i < numberRoutePoints - 1; i++) {
+            routeOptions = new PolylineOptions().width(lw);
+            routeOptions.add(routePoints[i]);
+            routeOptions.add(routePoints[i + 1]);
+            routeOptions.color(slopeColor[routeGrade[i] - 1]);
+            route[i] = map.addPolyline(routeOptions);
+        }
 
-            // Add each segment of the route to the map with appropriate color
-            for (int i = 0; i < numberRoutePoints - 1; i++) {
-                routeOptions = new PolylineOptions().width(lw);
-                routeOptions.add(routePoints[i]);
-                routeOptions.add(routePoints[i + 1]);
-                routeOptions.color(slopeColor[routeGrade[i] - 1]);
-                route[i] = map.addPolyline(routeOptions);
-            }
+        // Circle at beginning of route
+        CircleOptions circleOptions = new CircleOptions()
+                .center(routePoints[0])
+                .radius(6)
+                .strokeWidth(0)
+                .strokeColor(slopeColor[0])
+                .fillColor(Color.DKGRAY)
+                .zIndex(100);
+        map.addCircle(circleOptions);
 
-            // Circle at beginning of route
-            CircleOptions circleOptions = new CircleOptions()
-                    .center(routePoints[0])
-                    .radius(6)
-                    .strokeWidth(0)
-                    .strokeColor(slopeColor[0])
-                    .fillColor(Color.DKGRAY)
-                    .zIndex(100);
-            map.addCircle(circleOptions);
+        // Circle at end of route
+        circleOptions = circleOptions.center(routePoints[numberRoutePoints - 1]);
+        map.addCircle(circleOptions);
 
-            // Circle at end of route
-            circleOptions = circleOptions.center(routePoints[numberRoutePoints - 1]);
-            map.addCircle(circleOptions);
+        // Add warning areas
 
-            // Add warning areas
-
-            for (int i = 0; i < totalWaypoints; i++) {
-                map.addMarker(new MarkerOptions()
-                        .title("WARNING")
-                        .snippet(warnPointSnippet[i])
-                        .position(warnPointLatLng[i])
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                );
-            }
+        for (int i = 0; i < totalWaypoints; i++) {
+            map.addMarker(new MarkerOptions()
+                    .title("WARNING")
+                    .snippet(warnPointSnippet[i])
+                    .position(warnPointLatLng[i])
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+            );
+        }
     }
 
     // Method to overlay access symbols
@@ -531,8 +530,8 @@ public class RouteMapper extends AppCompatActivity implements
                 +" Longitude="+latlng.longitude);
     }
 
-    // This callback fires for long clicks on the map, passing in the LatLng coordinates.
-    // We will use it to launch a StreetView of the position corresponding to the
+    // This callback fires for long clicks on the map, passing in the LatLng coordinates
+    // of the click.  We will use it to launch a StreetView of the position corresponding to the
     // long press on the map.
 
     @Override
@@ -541,15 +540,14 @@ public class RouteMapper extends AppCompatActivity implements
         double lat = latlng.latitude;
         double lon = latlng.longitude;
 
-        // Launch a StreetView on current location
+        // Launch a Google StreetView on current location
         showStreetView(lat,lon);
 
     }
 
-    /* Open a Street View, if available.
-	 * The user will have the choice of getting the Street View
-	 * in a browser, or with the StreetView app if it is installed.
-	 * If no Street View exists for a given location, this will present a blank page. */
+     /* Open a Street View, if available. The user will have the choice of getting the Street View
+	 in a browser, or with the StreetView app if it is installed. If no Street View exists for a
+	 given location, this will present a blank page. */
 
     private void showStreetView(double lat, double lon ){
         String uriString = "google.streetview:cbll="+lat+","+lon;
@@ -619,7 +617,7 @@ public class RouteMapper extends AppCompatActivity implements
         @Override
         protected String doInBackground(URL... params) {
 
-            // params is an array of URLs, but we only need the first entry since we are
+            // params is an array of URLs, but we need only the first entry since we are
             // passing just one argument in new RouteLoader().execute(new URL(urlString)
 
             try {
@@ -709,15 +707,17 @@ public class RouteMapper extends AppCompatActivity implements
             overlayRoute();
         }
 
-        // Executes before the thread run by doInBackground
+        // Executes before the thread run by doInBackground.  This can be used to do any required
+        // setup before the thread is executed.
+
         protected void onPreExecute() {
             Log.i(TAG,"Ready to load URL");
         }
 
         // May be used to update progress as the background thread executes.  We won't do anything
-        // with it here since we are loading a very small XML file over the network, except to Log
-        // the message sent from the background thread using publishProgress(string) in
-        // doInBackground(URL url) above.
+        // with it here since we are loading a very small XML file over the network but for a long
+        // background task this can be used to keep the user informed of progress on the background
+        // task.
 
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
