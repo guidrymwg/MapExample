@@ -24,4 +24,7 @@
     <!--Key for M81n-->
     <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCrCpv3ezcDpZrwfWBbilIQsSggCb_ci6s</string>-->
 
+    <!--Key for new Dell portable-->
+    <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCR-2b7Yvs5ZrgYZXmtcHTlsPjv9vE4vCg</string>-->
+
 </resources>
