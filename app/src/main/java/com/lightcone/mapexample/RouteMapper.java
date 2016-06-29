@@ -104,7 +104,7 @@ public class RouteMapper extends AppCompatActivity implements
                 .findFragmentById(R.id.the_map);
         mapFragment.getMapAsync(this);
 
-		/* Create a new location client. The first 'this' in the args is the
+		/* Create a new GoogleApiClient instance. The first 'this' in the args is the
 		 * present context; the next two indicate that the present class will handle
 		 * the callbacks associated with connection and connection errors, respectively
 		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
@@ -316,7 +316,7 @@ public class RouteMapper extends AppCompatActivity implements
 
     public void overlayRoute() {
 
-        int lw = 16;
+        int lw = 10;
 
         // Define the route as a line with multiple segments
         route = new Polyline[numberRoutePoints];

@@ -231,8 +231,9 @@ public class MapMe extends AppCompatActivity implements
 
         map.getUiSettings().setZoomControlsEnabled(true);
 
-        // Set the initial zoom level of the map
+        // Set the initial zoom level of the map and store in prefs
         currentZoom = startZoom;
+        storeZoom(currentZoom);
 
         // Add a click listener to the map
         map.setOnMapClickListener(this);
@@ -372,6 +373,10 @@ public class MapMe extends AppCompatActivity implements
         }
 
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLat,myLon), currentZoom));
+        storeZoom(currentZoom);
+
+        currentZoom = map.getCameraPosition().zoom;
+        Log.i(TAG, "initialLocation, from camera currentZoom="+currentZoom);
 
     }
 
