@@ -313,8 +313,7 @@ public class MapMe extends AppCompatActivity implements
         if (map != null) {
             initializeMap();
         } else {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -848,8 +847,8 @@ public class MapMe extends AppCompatActivity implements
         dialog.show();
     }
 
-    // Method to be executed if user chooses negative button. This returns to main
-    // activity since there is no permission to execute this class.
+    // Method to execute if user chooses negative button. This returns to main
+    // activity since no permission has been given to execute required methods of this class.
 
     private void negativeTask(int id){
 
@@ -858,9 +857,12 @@ public class MapMe extends AppCompatActivity implements
         switch(id) {
 
             case 1:
-                String warn ="Returning to main page. To enable this ";
+                String warn = "The purpose of this part of the app is to determine your ";
+                warn += "location.  Hence it cannot function unless you grant the requested ";
+                warn += "permission. Returning to app homescreen. To enable this ";
                 warn += "part of the app you may manually enable Location permissions in ";
                 warn += " Settings > App > MapExample > Permissions.";
+
                 // New single-button dialog
                 showTaskDialog(2,"Task not enabled!", warn, dialogIcon, this, "", "OK");
                 break;
