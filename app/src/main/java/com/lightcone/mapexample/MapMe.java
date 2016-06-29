@@ -298,15 +298,16 @@ public class MapMe extends AppCompatActivity implements
 
         // Center map on current location
         map_center = new LatLng(myLat, myLon);
-
         if (map != null) {
             initializeMap();
         } else {
             Toast.makeText(this, getString(R.string.nomap_error),
                     Toast.LENGTH_LONG).show();
         }
-
     }
+
+    // Called after onConnected returns, indicating that GoogleApiClient is ready to
+    // accept location requests
 
     public void initializeLocation(){
 
@@ -315,6 +316,9 @@ public class MapMe extends AppCompatActivity implements
         mLocationRequest.setInterval(UPDATE_INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 
+        // We already checked for runtime permissions when onMapReady returned, but formally we
+        // must check for it again here.
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -322,9 +326,12 @@ public class MapMe extends AppCompatActivity implements
 
             return;
         }
+
+        // Request location updates
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
 
+        // Get current location and move the camera there
         myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         myLat = myLocation.getLatitude();
         myLon = myLocation.getLongitude();
@@ -336,17 +343,13 @@ public class MapMe extends AppCompatActivity implements
 
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(myLat,myLon), currentZoom));
         storeZoom(currentZoom);
-
-        currentZoom = map.getCameraPosition().zoom;
-        Log.i(TAG, "initialLocation, from camera currentZoom="+currentZoom);
-
     }
 
     // Method to store current value of zoom in preferences
 
     private void storeZoom(float zoom){
-            prefsEditor.putFloat("KEY_ZOOM", zoom);
-            prefsEditor.commit();
+        prefsEditor.putFloat("KEY_ZOOM", zoom);
+        prefsEditor.commit();
     }
 
     @Override
