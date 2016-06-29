@@ -348,6 +348,7 @@ public class MapMe extends AppCompatActivity implements
         myLon = myLocation.getLongitude();
         map.setMyLocationEnabled(true);
 
+        // Retrieve last used zoom from SharedPreferences
         if (prefs.contains("KEY_ZOOM") && map != null) {
             currentZoom = prefs.getFloat("KEY_ZOOM", map.getMaxZoomLevel());
         }
