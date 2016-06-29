@@ -59,6 +59,8 @@ public class ShowMap extends AppCompatActivity implements
     private GoogleMap map;
     private GoogleApiClient mGoogleApiClient;
     private Location myLocation;
+    private double myLat;
+    private double myLon;
     private LocationRequest mLocationRequest;
     private static final int dialogIcon = R.mipmap.ic_launcher;
 
@@ -278,13 +280,7 @@ public class ShowMap extends AppCompatActivity implements
     public void onConnected(Bundle bundle) {
 
         // Indicate that a connection has been established
-        Toast.makeText(this, getString(R.string.connected_toast),
-                Toast.LENGTH_SHORT).show();
-
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(10000); // Update location every second
-        mLocationRequest.setFastestInterval(5000);
+        Toast.makeText(this, getString(R.string.connected_toast), Toast.LENGTH_SHORT).show();
 
         // Be certain that permission has previously been given for fine location
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -298,8 +294,10 @@ public class ShowMap extends AppCompatActivity implements
                 mGoogleApiClient, mLocationRequest, this);
 
         myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        myLat = myLocation.getLatitude();
+        myLon = myLocation.getLongitude();
 
-        if(myLocation == null)Toast.makeText(this, "myLocation null", Toast.LENGTH_LONG).show();
+        Log.i(TAG,"Location Services Connected: myLat="+myLat+" myLon="+myLon);
 
         if (trk) {
             startLocationUpdates();

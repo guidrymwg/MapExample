@@ -322,11 +322,6 @@ public class MapMe extends AppCompatActivity implements
 
     public void initializeLocation(){
 
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-
         // We already checked for runtime permissions when onMapReady returned, but formally we
         // must check for it again here.
 
