@@ -35,7 +35,7 @@ import android.Manifest;
 public class ShowMap extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener,     // Is this needed?
+        LocationListener,
         OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
     // Update interval in milliseconds for location services

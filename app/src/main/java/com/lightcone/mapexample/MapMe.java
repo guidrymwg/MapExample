@@ -499,7 +499,7 @@ public class MapMe extends AppCompatActivity implements
                 .build();               // Creates a CameraPosition from the builder
 
         // Move (if variable animate is false) or animate (if animate is true) to new
-        // camera properties.
+        // camera properties. Move is sudden; animate is smooth.
 
         if(animate){
             map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
