@@ -202,17 +202,29 @@ public class MapMe extends AppCompatActivity implements
         map.setOnInfoWindowClickListener(this);
     }
 
-    // Logic to handle runtime permissions
+    /* Method to check for runtime permissions.  For Android 6 (API 23) and
+     beyond, we must check for the "dangerous" permission ACCESS_FINE_LOCATION at
+     runtime (in addition to declaring it in the manifest file).  The following code checks
+     for this permission.  If it has already been granted, it proceeds as normal.  If it
+     has not yet been granted by the user, the user is presented with an opportunity to grant
+     it. In general, the rest of this class will not execute until the user has granted such permission. */
 
     public void checkForPermissions(){
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "checkForPermission: No permission. Requesting that user grant it.");
 
-            // Permission has not been granted by user previously.  Request it now.
+             /* Permission has not been granted by user previously.  Request it now. The system
+             will present a dialog to the user requesting the permission, with options "accept",
+             "deny", and a box to check "don't ask again". When the user chooses, the system
+             will then fire the onRequestPermissionsResult() callback, passing in the user-defined
+             integer defining the type of permission request (REQUEST_LOCATION in this case)
+             and the "accept" or "deny" user response.  We deal appropriately
+             with the user response in our override of onRequestPermissionsResult() below.*/
+
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+
         } else {
             Log.i(TAG, "checkForPermission: Permission has been granted");
         }
@@ -361,27 +373,23 @@ public class MapMe extends AppCompatActivity implements
 
     //@Override
     public void onDisconnected() {
-        Toast.makeText(this, getString(R.string.disconnected_toast),
-                Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.disconnected_toast), Toast.LENGTH_SHORT).show();
     }
 
-    // Called by Location Services if the attempt to connect to
-    // Location Services fails.
+    // Called by Location Services if the attempt to connect to Location Services fails.
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
 		/* Google Play services can resolve some errors it detects.
 		 * If the error has a resolution, try sending an Intent to
-		 * start a Google Play services activity that can resolve the error.
-		 */
+		 * start a Google Play services activity that can resolve the error. */
 
         if (connectionResult.hasResolution()) {
             try {
                 // Start an Activity that tries to resolve the error
                 connectionResult.startResolutionForResult(
                         this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
-
                 // Thrown if Google Play services canceled the original PendingIntent
             } catch (IntentSender.SendIntentException e) {
                 e.printStackTrace();
@@ -397,11 +405,14 @@ public class MapMe extends AppCompatActivity implements
         // Create an error dialog display here
     }
 
-    // Method to initialize the map.
+    // Method to initialize the map. Called after onMapReady returns.
 
     private void initializeMap() {
 
-        // Enable or disable current location
+
+        // We already checked for runtime permissions when onMapReady returned, but formally we
+        // must check for it again here.
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -435,8 +446,7 @@ public class MapMe extends AppCompatActivity implements
 	 * and should be specified in the format BitmapDescriptorFactory.HUE_RED, which is
 	 * the default color, but various other ones are defined there such as HUE_ORANGE,
 	 * HUE_BLUE, HUE_GREEN, ... The arguments title and snippet are for the window that
-	 * will open if one clicks on the marker.
-	 */
+	 * will open if one clicks on the marker. */
 
     private void addMapMarker (double lat, double lon, float markerColor,
                                String title, String snippet){
@@ -450,8 +460,7 @@ public class MapMe extends AppCompatActivity implements
             marker.setDraggable(false);
             marker.showInfoWindow();
         } else {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -472,8 +481,7 @@ public class MapMe extends AppCompatActivity implements
         return df.format(number);
     }
 
-	/* Method to change properties of camera. If your GoogleMaps instance is called map,
-	 * you can use
+	/* Method to change properties of camera. Use
 	 *
 	 * map.getCameraPosition().target
 	 * map.getCameraPosition().zoom
@@ -483,8 +491,7 @@ public class MapMe extends AppCompatActivity implements
 	 * to get the current values of the camera position (target, which is a LatLng),
 	 * zoom, bearing, and tilt, respectively.  This permits changing only a subset of
 	 * the camera properties by passing the current values for all arguments you do not
-	 * wish to change.
-	 * */
+	 * wish to change. */
 
     private void changeCamera(GoogleMap map, LatLng center, float zoom,
                               float bearing, float tilt, boolean animate) {
@@ -580,11 +587,8 @@ public class MapMe extends AppCompatActivity implements
                 changeCamera(map, currentLatLng, map.getCameraPosition().zoom,
                         bearing, map.getCameraPosition().tilt, true);
             }
-
-
         } else {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -666,7 +670,6 @@ public class MapMe extends AppCompatActivity implements
         // than one is returned by the geodecoder.
 
         return returnString;
-
     }
 
 
@@ -679,7 +682,6 @@ public class MapMe extends AppCompatActivity implements
 
     @Override
     public void onMapClick(LatLng latlng) {
-
         String f = "0.0000";
         double lat = latlng.latitude;
         double lon = latlng.longitude;
@@ -713,8 +715,7 @@ public class MapMe extends AppCompatActivity implements
 
 	/* Add a circle at (lat, lon) with specified radius. Stroke and fill colors are specified
 	 * as strings. Valid strings are those valid for the argument of Color.parseColor(string):
-	 * for example, "#RRGGBB", "#AARRGGBB", "red", "blue", ...
-	 */
+	 * for example, "#RRGGBB", "#AARRGGBB", "red", "blue", ...*/
 
     private Circle addCircle(double lat, double lon, float radius,
                              String strokeColor, String fillColor){
@@ -733,9 +734,7 @@ public class MapMe extends AppCompatActivity implements
 
         // Add circle to map and return reference to the Circle for possible later use
         return map.addCircle(circleOptions);
-
     }
-
 
     // Process clicks on markers
 
@@ -747,7 +746,6 @@ public class MapMe extends AppCompatActivity implements
         localCircle.remove();
         // Return true to prevent default behavior of opening info window
         return true;
-
     }
 
     // Process clicks on the marker info window
@@ -758,20 +756,17 @@ public class MapMe extends AppCompatActivity implements
         double lat = marker.getPosition().latitude;
         double lon = marker.getPosition().longitude;
 
-        // Launch a StreetView on current location
+        // Launch a Street View on current location
         showStreetView(lat,lon);
 
         // Remove marker and circle
         marker.remove();
         localCircle.remove();
-
     }
 
-	/* Open a Street View, if available.
-	 * The user will have the choice of getting the Street View
-	 * in a browser, or with the StreetView app if it is installed.
-	 * If no Street View exists for a given location, this will present
-	 * a blank page. */
+	/* Open a Street View, if available. The user will have the choice of getting the Street View
+	 * in a browser, or with the StreetView app if it is installed. If no Street View exists for
+	 * a given location, this will present a blank page. */
 
     private void showStreetView(double lat, double lon ){
         String uriString = "google.streetview:cbll="+lat+","+lon;
@@ -781,9 +776,9 @@ public class MapMe extends AppCompatActivity implements
 
     /*Following method invoked by the system after the user response to a runtime permission request
      (Android 6, API 23 and beyond implement such runtime permissions). The system passes to this
-     method the user's response, which is then acted upon in this method.  This method can respond
-     to more than one type permission.  The variable requestCode distinguishes which permission is being
-     processed. */
+     method the user's response, which you then should act upon in this method.  This method can respond
+     to more than one type permission.  The user-defined integer requestCode (passed in the call to
+     ActivityCompat.requestPermissions) distinguishes which permission is being processed. */
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -853,7 +848,8 @@ public class MapMe extends AppCompatActivity implements
         dialog.show();
     }
 
-    // Method to be executed if user chooses negative button.
+    // Method to be executed if user chooses negative button. This returns to main
+    // activity since there is no permission to execute this class.
 
     private void negativeTask(int id){
 
@@ -862,7 +858,6 @@ public class MapMe extends AppCompatActivity implements
         switch(id) {
 
             case 1:
-                // Warning that this part of app not enabled
                 String warn ="Returning to main page. To enable this ";
                 warn += "part of the app you may manually enable Location permissions in ";
                 warn += " Settings > App > MapExample > Permissions.";
@@ -878,7 +873,7 @@ public class MapMe extends AppCompatActivity implements
         }
     }
 
-    // Method to execute if user chooses positive button ("OK, I'll Do It"). This starts the
+    // Method to execute if user chooses positive button ("OK, Do Over"). This starts the
     // map initialization, which will present the location permissions dialog again.
 
     private void positiveTask(int id){
@@ -894,7 +889,6 @@ public class MapMe extends AppCompatActivity implements
             case 2:
                 break;
         }
-
     }
 
 
@@ -904,8 +898,7 @@ public class MapMe extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (map == null) {
-            Toast.makeText(this, getString(R.string.nomap_error),
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.nomap_error), Toast.LENGTH_LONG).show();
             return false;
         }
 

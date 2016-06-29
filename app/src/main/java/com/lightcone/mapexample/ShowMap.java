@@ -187,8 +187,8 @@ public class ShowMap extends AppCompatActivity implements
     /*Following method invoked by the system after the user response to a runtime permission request
      (Android 6, API 23 and beyond implement such runtime permissions). The system passes to this
      method the user's response, which you then should act upon in this method.  This method can respond
-     to more than one type permission.  The user-defined integer requestCode distinguishes which
-     permission is being processed. */
+     to more than one type permission.  The user-defined integer requestCode (passed in the call to
+     ActivityCompat.requestPermissions) distinguishes which permission is being processed. */
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -366,7 +366,8 @@ public class ShowMap extends AppCompatActivity implements
         dialog.show();
     }
 
-    // Method to be executed if user chooses negative button.
+    // Method to be executed if user chooses negative button. This returns to main
+    // activity since there is no permission to execute this class.
 
     private void negativeTask(int id){
 
@@ -428,8 +429,7 @@ public class ShowMap extends AppCompatActivity implements
 
     /* Open a Street View, if available. The user will have the choice of getting the Street View
 	 * in a browser, or with the StreetView app if it is installed. If no Street View exists
-	 * for a given location, this will present a blank page.
-	 */
+	 * for a given location, this will present a blank page. */
 
     private void showStreetView(double lat, double lon ){
         String uriString = "google.streetview:cbll="+lat+","+lon;
@@ -438,8 +438,7 @@ public class ShowMap extends AppCompatActivity implements
     }
 
     /* The following two lifecycle methods conserve resources by ensuring that location services
-    are connected when the map is visible and disconnected when it is not.
-	 */
+    are connected when the map is visible and disconnected when it is not.*/
 
     // Called by system when Activity becomes visible, so connect location client.
 
@@ -450,7 +449,7 @@ public class ShowMap extends AppCompatActivity implements
     }
 
     // Called by system when Activity is no longer visible, so disconnect location
-    // client, which invalidates it.
+    // client.
 
     @Override
     protected void onStop() {
