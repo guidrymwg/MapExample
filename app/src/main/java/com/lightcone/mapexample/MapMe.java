@@ -66,17 +66,16 @@ public class MapMe extends AppCompatActivity implements
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     // Speed threshold for orienting map in direction of motion (m/s)
     private static final double SPEED_THRESH = 1;
-
     private static final String TAG = "Mapper";
 
     // User defines value of REQUEST_LOCATION. It will identify a permission request
     // specifically for ACCESS_FINE_LOCATION.  Define a different integer for each
-    // "dangerous" permission that you will request at runtime (in this example there
-    // is only one).
+    // "dangerous" permission to be requested at runtime (in this example there is only one).
 
     final private int REQUEST_LOCATION = 2;
+
     private GoogleApiClient mGoogleApiClient;
-    //private LocationRequest mLocationRequest;
+    private LocationRequest mLocationRequest;
     private Location myLocation;
     private double myLat;
     private double myLon;
@@ -88,24 +87,17 @@ public class MapMe extends AppCompatActivity implements
     private float speed;
     private float acc;
     private Circle localCircle;
-
     private double lon;
     private double lat;
     static final int numberOptions = 10;
     String[] optionArray = new String[numberOptions];
-
     private static final int dialogIcon = R.mipmap.ic_launcher;
 
-    // Define an object that holds accuracy and frequency parameters
-    private LocationRequest mLocationRequest;
-
-    // Set up shared preferences to persist data.  We will use it later
-    // to save the current zoom level if user leaves this activity, and
-    // restore it when she returns.
+    // Set up shared preferences to persist data.  We will use it later to save
+    // current zoom level if user leaves this activity, and restore it when she returns.
 
     SharedPreferences prefs;
     SharedPreferences.Editor prefsEditor;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,14 +122,13 @@ public class MapMe extends AppCompatActivity implements
                 .findFragmentById(R.id.mapme_map);
         mapFragment.getMapAsync(this);
 
-        /* Create new location client. The first 'this' in args is the present
-		 * context; the next two 'this' args indicate that this class will handle
-		 * callbacks associated with connection and connection errors, respectively
+        /* Create new GoogleApiClient for location services. The first 'this' in args is
+		 * present context; the next two 'this' args indicate that this class will handle
+		 * callbacks associated with connections and connection errors, respectively
 		 * (see the onConnected, onDisconnected, and onConnectionError callbacks below).
 		 * You cannot use the location client until the onConnected callback
 		 * fires, indicating a valid connection.  At that point you can access location
-		 * services such as present position and location updates.
-		 */
+		 * services such as present position and location updates. */
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -145,8 +136,6 @@ public class MapMe extends AppCompatActivity implements
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        //createLocationClient();
-
         // Create the LocationRequest object
         mLocationRequest = LocationRequest.create();
         // Set request for high accuracy
@@ -156,57 +145,22 @@ public class MapMe extends AppCompatActivity implements
         // Set fastest update interval that we can accept
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
 
-        // Get a shared preferences
+        // Get a shared preferences and ShredPreferences editor
         prefs = getSharedPreferences("SharedPreferences", Context.MODE_PRIVATE);
-        // Get a SharedPreferences editor
         prefsEditor = prefs.edit();
 
         // Keep screen on while this map location tracking activity is running
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
     }
 
-    public void createLocationClient(){
-
-        // Create the LocationRequest object
-        mLocationRequest = LocationRequest.create();
-        // Set request for high accuracy
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // Set update interval
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        // Set fastest update interval that we can accept
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-    }
-
-    public void checkForPermissions(){
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "checkForPermission: No permission. Requesting that user grant it.");
-            // Permission has not been granted by user previously.  Request it now.
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
-        } else {
-            Log.i(TAG, "checkForPermission: Permission has been granted");
-
-            // permission has been granted, continue as usual
-            //myLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-            //createLocationClient();
-        }
-    }
-
-    // This callback is executed when the map is ready, passing in the map reference
-    // googleMap.
+    // Callback executed when the map is ready, passing in the map reference googleMap.
+    // First set up map, then check for runtime permission on location.
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         map = googleMap;
-
         setupMap();
         checkForPermissions();
-
     }
 
     public void setupMap(){
@@ -246,10 +200,25 @@ public class MapMe extends AppCompatActivity implements
 
         // Add marker info window click listener
         map.setOnInfoWindowClickListener(this);
-
     }
 
-    // Following two methods display and handle the top bar options menu for maps
+    // Logic to handle runtime permissions
+
+    public void checkForPermissions(){
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "checkForPermission: No permission. Requesting that user grant it.");
+
+            // Permission has not been granted by user previously.  Request it now.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+        } else {
+            Log.i(TAG, "checkForPermission: Permission has been granted");
+        }
+    }
+
+    // Create Toolbar menu.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -282,8 +251,7 @@ public class MapMe extends AppCompatActivity implements
 
 	/* The following two lifecycle methods conserve resources by ensuring that
 	 * location services are connected when the map is visible and disconnected when
-	 * it is not.
-	 */
+	 * it is not. */
 
     // Called by system when Activity becomes visible, so connect location client.
 
@@ -291,11 +259,9 @@ public class MapMe extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         if(mGoogleApiClient != null) mGoogleApiClient.connect();
-        Log.i(TAG, "onStart, currentZoom = "+currentZoom);
     }
 
-    // Called by system when Activity is no longer visible, so disconnect location
-    // client, which invalidates it.
+    // Called by system when Activity no longer visible, so disconnect client,
 
     @Override
     protected void onStop() {
@@ -310,7 +276,6 @@ public class MapMe extends AppCompatActivity implements
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
-        mGoogleApiClient.disconnect();
 
         // Turn off the screen-always-on request
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -321,16 +286,13 @@ public class MapMe extends AppCompatActivity implements
     // The following three callbacks indicate connections, disconnections, and
     // connection errors, respectively.
 
-
 	/* Called by Location Services when the request to connect the client finishes successfully.
 	At this point, you can request current location or begin periodic location updates. */
 
     @Override
     public void onConnected(Bundle dataBundle) {
 
-        // Indicate that a connection has been established
-        Toast.makeText(this, getString(R.string.connected_toast),
-                Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.connected_toast), Toast.LENGTH_SHORT).show();
 
         initializeLocation();
 
