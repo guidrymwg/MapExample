@@ -11,7 +11,7 @@ The project <b>MapExample</b> illustrates a number of applications using Google 
  - tracking your location on maps
  - adding routes between points on maps
  - adding Google StreetView capability to maps
- - 
+  
 The projects in these repositories correspond to individual lessons in the free online android programming course at http://eagle.phys.utk.edu/guidry/android/ .
 
 ## Prerequisites
