@@ -20,6 +20,9 @@ This project assumes the Gradle build system in Android Studio. It was targeted 
  - Android Studio (<a href="https://developer.android.com/studio/install.html" target="_new">Installing Android Studio</a>)
  - A Google Maps <a href="https://developers.google.com/maps/documentation/android-api/start#step_4_get_a_google_maps_api_key" target="_new">API key</a>
  - An Android phone or tablet, or an Android phone or tablet emulator launched from Android Studio
+ - Some image files that may be found in this <a 
+href="http://eagle.phys.utk.edu/guidry/android/images" target="_new">images 
+directory</a>
 
 ## Getting Started
 First download this project using the <b>Clone or Download</b> button, either by importing into Android Studio using GitHub version control, or by downloading and unpacking a <i>.zip file.</i>  Full instructions for both may be found by going to 
