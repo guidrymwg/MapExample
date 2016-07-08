@@ -1,6 +1,4 @@
 # MapExample
-The projects in these repositories correspond to individual lessons in the free online android programming course at http://eagle.phys.utk.edu/guidry/android/ .
-
 The project <b>MapExample</b> illustrates a number of applications using Google Maps in conjunction with location services, including
 
  - basic maps 
@@ -13,6 +11,8 @@ The project <b>MapExample</b> illustrates a number of applications using Google 
  - tracking your location on maps
  - adding routes between points on maps
  - adding Google StreetView capability to maps
+ - 
+The projects in these repositories correspond to individual lessons in the free online android programming course at http://eagle.phys.utk.edu/guidry/android/ .
 
 ## Prerequisites
 This project assumes the Gradle build system in Android Studio. It was targeted at Android 6.0 (API 23) but should be compatible with API 15 and beyond.  You will need
