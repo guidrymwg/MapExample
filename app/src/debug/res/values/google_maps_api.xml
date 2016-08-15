@@ -22,9 +22,9 @@
     <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCw85E8JvuD9UqDdUTR8xAaCwJ24R5WB68</string>-->
 
     <!--Key for M81n-->
-    <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCrCpv3ezcDpZrwfWBbilIQsSggCb_ci6s</string>-->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCrCpv3ezcDpZrwfWBbilIQsSggCb_ci6s</string>
 
     <!--Key for new Dell portable-->
-    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCz_G2Mrg8E5pwV7hwkb48yqMBCsAkB5s4</string>
+    <!--<string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyCz_G2Mrg8E5pwV7hwkb48yqMBCsAkB5s4</string>-->
 
 </resources>
